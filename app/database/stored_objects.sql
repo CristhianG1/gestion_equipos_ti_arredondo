@@ -17,6 +17,7 @@ DELIMITER $$
 
 -- 2. Procedimiento Almacenado: sp_asignar_equipo
 -- Termina cualquier asignación activa del equipo y registra la nueva asignación de forma transaccional.
+-- Sincroniza las columnas id_usuario e id_ambiente en la tabla equipo.
 CREATE PROCEDURE sp_asignar_equipo(
     IN p_id_equipo INT,
     IN p_id_usuario INT,
@@ -38,6 +39,12 @@ BEGIN
         -- Insertar la nueva asignación
         INSERT INTO asignacion_historial (id_equipo, id_usuario, id_ambiente, fecha_inicio)
         VALUES (p_id_equipo, p_id_usuario, p_id_ambiente, NOW());
+
+        -- Sincronizar el estado actual en la tabla equipo
+        UPDATE equipo
+        SET id_usuario = p_id_usuario,
+            id_ambiente = p_id_ambiente
+        WHERE id_equipo = p_id_equipo;
     COMMIT;
 END$$
 
