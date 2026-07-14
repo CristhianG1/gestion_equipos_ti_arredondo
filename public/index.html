@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte TI FISI - Control de Incidencias</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="pulse-icon"></span>
+                <h1>Soporte TI FISI</h1>
+            </div>
+            <div id="user-session-info" class="user-session hidden">
+                <span id="session-badge"></span>
+                <span id="session-name">Cargando...</span>
+                <button id="btn-logout" class="btn btn-secondary btn-sm">Cambiar Rol</button>
+            </div>
+        </header>
+
+        <!-- PANTALLA 1: SELECCIÓN DE ROL -->
+        <main id="view-role-selection" class="view">
+            <div class="card intro-card">
+                <h2>Panel de Control e Incidencias</h2>
+                <p class="subtitle">Selecciona tu rol para acceder al sistema y realizar operaciones</p>
+                
+                <div class="role-grid">
+                    <div class="role-card" data-role="empleado">
+                        <div class="icon">👤</div>
+                        <h3>Empleado</h3>
+                        <p>Reporta fallas de equipos y consulta el estado de tus incidencias.</p>
+                    </div>
+                    <div class="role-card disabled" data-role="jefe">
+                        <div class="icon">💼</div>
+                        <h3>Jefe de Área</h3>
+                        <span class="badge-soon">Próximamente</span>
+                        <p>Genera solicitudes de TI y gestiona requerimientos de hardware.</p>
+                    </div>
+                    <div class="role-card disabled" data-role="tecnico">
+                        <div class="icon">🔧</div>
+                        <h3>Técnico</h3>
+                        <span class="badge-soon">Próximamente</span>
+                        <p>Atiende incidencias, da de baja equipos y gestiona componentes.</p>
+                    </div>
+                    <div class="role-card disabled" data-role="practicante">
+                        <div class="icon">🎓</div>
+                        <h3>Practicante</h3>
+                        <span class="badge-soon">Próximamente</span>
+                        <p>Visualiza incidencias asignadas y apoya en la resolución rápida.</p>
+                    </div>
+                    <div class="role-card disabled" data-role="administrador_sistema">
+                        <div class="icon">⚙️</div>
+                        <h3>Administrador</h3>
+                        <span class="badge-soon">Próximamente</span>
+                        <p>Configuración completa del sistema y auditorías generales.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- SELECCIÓN DE IDENTIDAD (SIMULACIÓN DE LOGIN) -->
+        <main id="view-login-simulation" class="view hidden">
+            <div class="card card-narrow text-center">
+                <button id="btn-back-roles" class="btn-back">← Volver</button>
+                <h2>Simulador de Sesión</h2>
+                <p class="subtitle">Escoge un usuario disponible en la base de datos para continuar:</p>
+                <div class="form-group">
+                    <select id="select-user-simulation" class="form-control">
+                        <!-- Cargados dinámicamente -->
+                    </select>
+                </div>
+                <button id="btn-confirm-login" class="btn btn-primary btn-block">Ingresar al Panel</button>
+            </div>
+        </main>
+
+        <!-- PANTALLA 2: INTERFAZ DE EMPLEADO -->
+        <main id="view-empleado-dashboard" class="view hidden">
+            <!-- Menú de Acciones -->
+            <div class="action-bar">
+                <button id="btn-nav-registrar" class="tab-btn active">Reportar Falla (Incidencia)</button>
+                <button id="btn-nav-revisar" class="tab-btn">Revisar mis Incidencias</button>
+            </div>
+
+            <!-- Panel de Registro de Incidencia (sp_registrar_incidencia) -->
+            <section id="panel-registrar-incidencia" class="dashboard-panel">
+                <div class="card">
+                    <h2>Registrar Nueva Incidencia</h2>
+                    <p class="subtitle">Indica el equipo afectado, la prioridad y describe detalladamente el problema</p>
+                    
+                    <form id="form-registrar-incidencia">
+                        <div class="form-group">
+                            <label for="reg-id-equipo">Equipo Afectado</label>
+                            <select id="reg-id-equipo" class="form-control" required>
+                                <!-- Cargados dinámicamente -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-prioridad">Prioridad</label>
+                            <select id="reg-prioridad" class="form-control" required>
+                                <option value="baja">Baja (No impide realizar labores básicas)</option>
+                                <option value="media" selected>Media (Trabajo parcialmente demorado)</option>
+                                <option value="alta">Alta (Imposible trabajar, parada crítica)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-descripcion">Descripción detallada de la falla</label>
+                            <textarea id="reg-descripcion" class="form-control" rows="5" placeholder="Escribe aquí los síntomas del equipo (ej: no enciende, se apaga solo, pantalla azul constante al abrir ciertos programas...)" required></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Registrar Falla en BD</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Panel de Revisión de Incidencias (Vistas y SP de seguimiento) -->
+            <section id="panel-revisar-incidencias" class="dashboard-panel hidden">
+                <div class="card">
+                    <h2>Mis Incidencias Reportadas</h2>
+                    <p class="subtitle">Consulta el estado actual de tus incidencias y sus respectivos seguimientos técnicos</p>
+                    
+                    <div class="table-container">
+                        <table class="table" id="table-incidencias">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ID Equipo</th>
+                                    <th>Descripción de Falla</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-incidencias">
+                                <!-- Cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Detalle de Seguimiento Técnico (Modal/Card de Detalle) -->
+                <div id="card-seguimiento-detalle" class="card mt-4 hidden">
+                    <div class="card-header-split">
+                        <h3>Seguimiento Técnico de la Incidencia #<span id="detail-id-incidencia"></span></h3>
+                        <button id="btn-close-detail" class="btn-close-x">✕</button>
+                    </div>
+                    <div class="incidencia-info-grid">
+                        <div class="info-block">
+                            <span class="info-label">Equipo Afectado:</span>
+                            <span id="detail-equipo" class="info-value"></span>
+                        </div>
+                        <div class="info-block">
+                            <span class="info-label">Descripción Inicial:</span>
+                            <span id="detail-descripcion" class="info-value"></span>
+                        </div>
+                        <div class="info-block">
+                            <span class="info-label">Estado Actual:</span>
+                            <span id="detail-estado" class="badge"></span>
+                        </div>
+                    </div>
+
+                    <h4 class="mt-4">Línea de Tiempo de Atención Técnica:</h4>
+                    <div class="timeline" id="timeline-seguimiento">
+                        <!-- Cargados dinámicamente de sp_ver_seguimiento_incidencia -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- NOTIFICACIONES TOAST -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

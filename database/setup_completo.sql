@@ -33,16 +33,10 @@ CREATE TABLE `usuario` (
   CONSTRAINT `fk_usuario_area` FOREIGN KEY (`id_area`) REFERENCES `area` (`id_area`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Tabla de rangos de técnicos
-CREATE TABLE `rango_tecnico` (
-  `id_rango` int PRIMARY KEY AUTO_INCREMENT,
-  `nombre` varchar(255) UNIQUE NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- Tabla de técnicos
 CREATE TABLE `tecnico` (
   `id_tecnico` int PRIMARY KEY AUTO_INCREMENT,
-  `id_rango` int NOT NULL,
+  `rango` ENUM('practicante', 'tecnico', 'administrador_sistema') NOT NULL,
   `nombres` varchar(255) NOT NULL,
   `apellidos` varchar(255) NOT NULL,
   `correo` varchar(255) UNIQUE NOT NULL,
@@ -50,15 +44,15 @@ CREATE TABLE `tecnico` (
   `contrasena` varchar(255) NOT NULL,
   `estado` boolean DEFAULT true,
   CONSTRAINT `chk_tecnico_correo` CHECK (`correo` REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'),
-  CONSTRAINT `chk_tecnico_telefono` CHECK (`telefono` IS NULL OR `telefono` REGEXP '^[0-9]{7,15}$'),
-  CONSTRAINT `fk_tecnico_rango` FOREIGN KEY (`id_rango`) REFERENCES `rango_tecnico` (`id_rango`) ON DELETE RESTRICT
+  CONSTRAINT `chk_tecnico_telefono` CHECK (`telefono` IS NULL OR `telefono` REGEXP '^[0-9]{7,15}$')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de ambientes
 CREATE TABLE `ambiente` (
   `id_ambiente` int PRIMARY KEY AUTO_INCREMENT,
   `numero` int NOT NULL,
-  `pabellon` varchar(255) NOT NULL,
+  `nombre` varchar(50) NOT NULL,
+  `pabellon` ENUM('Antiguo','Nuevo') NOT NULL,
   `piso` int NOT NULL,
   CONSTRAINT `chk_ambiente_numero` CHECK (`numero` > 0),
   CONSTRAINT `chk_ambiente_piso` CHECK (`piso` >= 0)
@@ -68,7 +62,7 @@ CREATE TABLE `ambiente` (
 CREATE TABLE `equipo` (
   `id_equipo` int PRIMARY KEY AUTO_INCREMENT,
   `codigo_inventario` varchar(255) UNIQUE NOT NULL,
-  `tipo` ENUM ('laptop', 'pc_escritorio', 'proyector', 'teclado', 'mouse', 'monitor', 'otro') NOT NULL,
+  `tipo` ENUM ('pc_escritorio', 'proyector', 'teclado', 'mouse', 'monitor', 'otro') NOT NULL,
   `tipo_origen` ENUM ('ensamblado_facultad', 'comprado_ensamblado') NOT NULL,
   `marca` varchar(255),
   `estado` ENUM ('operativo', 'mantenimiento', 'baja') NOT NULL DEFAULT 'operativo',
@@ -97,15 +91,15 @@ CREATE TABLE `componente` (
 -- Tabla de procesadores
 CREATE TABLE `procesador` (
   `id_componente` int PRIMARY KEY,
-  `marca` varchar(255),
-  `modelo` varchar(255),
+  `marca` varchar(50),
+  `modelo` varchar(100),
   CONSTRAINT `fk_procesador_componente` FOREIGN KEY (`id_componente`) REFERENCES `componente` (`id_componente`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de memorias RAM
 CREATE TABLE `memoria_ram` (
   `id_componente` int PRIMARY KEY,
-  `marca` varchar(255),
+  `marca` varchar(50),
   `capacidad_gb` int,
   `tipo_ddr` ENUM ('DDR3', 'DDR4', 'DDR5'),
   CONSTRAINT `chk_ram_capacidad` CHECK (`capacidad_gb` IS NULL OR `capacidad_gb` > 0),
@@ -115,8 +109,8 @@ CREATE TABLE `memoria_ram` (
 -- Tabla de almacenamiento
 CREATE TABLE `almacenamiento` (
   `id_componente` int PRIMARY KEY,
-  `marca` varchar(255),
-  `modelo` varchar(255),
+  `marca` varchar(50),
+  `modelo` varchar(100),
   `tipo` ENUM ('ssd', 'hdd'),
   `capacidad_gb` int,
   CONSTRAINT `chk_almacenamiento_capacidad` CHECK (`capacidad_gb` IS NULL OR `capacidad_gb` > 0),
@@ -126,8 +120,8 @@ CREATE TABLE `almacenamiento` (
 -- Tabla de tarjetas gráficas
 CREATE TABLE `tarjeta_grafica` (
   `id_componente` int PRIMARY KEY,
-  `marca` varchar(255),
-  `modelo` varchar(255),
+  `marca` varchar(50),
+  `modelo` varchar(100),
   `vram_gb` int,
   CONSTRAINT `chk_grafica_vram` CHECK (`vram_gb` IS NULL OR `vram_gb` > 0),
   CONSTRAINT `fk_tarjeta_grafica_componente` FOREIGN KEY (`id_componente`) REFERENCES `componente` (`id_componente`) ON DELETE RESTRICT
@@ -136,20 +130,20 @@ CREATE TABLE `tarjeta_grafica` (
 -- Tabla de placas madre
 CREATE TABLE `placa_madre` (
   `id_componente` int PRIMARY KEY,
-  `marca` varchar(255),
-  `modelo` varchar(255),
-  `socket` varchar(255),
-  `factor_forma` varchar(255),
+  `marca` varchar(50),
+  `modelo` varchar(100),
+  `socket` varchar(50),
+  `factor_forma` varchar(50),
   CONSTRAINT `fk_placa_madre_componente` FOREIGN KEY (`id_componente`) REFERENCES `componente` (`id_componente`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de fuentes de poder
 CREATE TABLE `fuente_poder` (
   `id_componente` int PRIMARY KEY,
-  `marca` varchar(255),
-  `modelo` varchar(255),
+  `marca` varchar(50),
+  `modelo` varchar(100),
   `potencia_watts` int,
-  `certificacion` varchar(255),
+  `certificacion` varchar(50),
   CONSTRAINT `chk_fuente_potencia` CHECK (`potencia_watts` IS NULL OR `potencia_watts` > 0),
   CONSTRAINT `fk_fuente_poder_componente` FOREIGN KEY (`id_componente`) REFERENCES `componente` (`id_componente`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
