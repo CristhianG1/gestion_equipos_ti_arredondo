@@ -360,12 +360,14 @@ CREATE PROCEDURE `sp_ver_software_instalado_tecnico`(
 )
 BEGIN
     SELECT 
-        eq.`codigo_inventario` AS `equipo`,
-        sw.`nombre` AS `software`,
-        sw_inst.`tipo_licencia` AS `tipo_licencia`,
-        sw_inst.`clave_licencia` AS `clave_licencia`,
-        sw_inst.`fecha_instalacion` AS `instalacion`,
-        sw_inst.`fecha_expiracion` AS `expiracion`
+        eq.`id_equipo`,
+        sw_inst.`id_software`,
+        eq.`codigo_inventario`,
+        sw.`nombre` AS `nombre_software`,
+        sw_inst.`tipo_licencia`,
+        sw_inst.`clave_licencia`,
+        sw_inst.`fecha_instalacion`,
+        sw_inst.`fecha_expiracion`
     FROM `software_instalado` sw_inst
     INNER JOIN `equipo` eq ON sw_inst.`id_equipo` = eq.`id_equipo`
     INNER JOIN `software` sw ON sw_inst.`id_software` = sw.`id_software`
@@ -588,13 +590,13 @@ END$$
 CREATE PROCEDURE `sp_ver_solicitudes`()
 BEGIN
     SELECT 
-        s.`id_solicitud` AS `Id_Solicitud`,
-        CONCAT(u.`nombres`, ' ', u.`apellidos`) AS `Usuario_Solicita`,
-        CONCAT(a.`pabellon`, ' - ', a.`numero`) AS `Ambiente`,
-        s.`tipo` AS `Tipo`,
-        s.`descripcion` AS `Descripcion`,
-        s.`estado` AS `Estado`,
-        s.`fecha_solicitud` AS `Fecha_Registro`
+        s.`id_solicitud`,
+        CONCAT(u.`nombres`, ' ', u.`apellidos`) AS `jefe_nombres`,
+        CONCAT(a.`pabellon`, ' - ', a.`numero`) AS `ambiente`,
+        s.`tipo`,
+        s.`descripcion`,
+        s.`estado`,
+        s.`fecha_solicitud`
     FROM `solicitud` s
     INNER JOIN `usuario` u ON s.`id_usuario_solicita` = u.`id_usuario`
     INNER JOIN `ambiente` a ON u.`id_area` = a.`id_ambiente`
@@ -677,7 +679,7 @@ DROP PROCEDURE IF EXISTS `sp_ver_todos_componentes` $$
 
 CREATE PROCEDURE `sp_ver_todos_componentes`()
 BEGIN
-    SELECT `componente_id`, `tipo`, `especificaciones_tecnicas`, `estado_fisico`, `asignado_a`
+    SELECT `componente_id`, `tipo`, `especificaciones_tecnicas`, `estado_fisico`, `asignado_a`, `id_equipo`, `id_ambiente`
     FROM `vw_componentes_detallados`
     ORDER BY `componente_id` DESC;
 END$$

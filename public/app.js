@@ -2099,6 +2099,14 @@ DOM.btnConfirmLogin.addEventListener('click', () => {
     // Desviar a dashboard según rol
     if (currentSession.role === 'empleado' || currentSession.role === 'jefe') {
         DOM.viewEmpleadoDashboard.classList.remove('hidden');
+        // Mostrar u ocultar opciones exclusivas del jefe
+        if (currentSession.role === 'jefe') {
+            EmpDOM.btnNavCrearSolicitud.classList.remove('hidden');
+            EmpDOM.btnNavRevisarSolicitudes.classList.remove('hidden');
+        } else {
+            EmpDOM.btnNavCrearSolicitud.classList.add('hidden');
+            EmpDOM.btnNavRevisarSolicitudes.classList.add('hidden');
+        }
         EmpDOM.btnNavRegistrar.click(); // Pestaña por defecto
     } else if (currentSession.role === 'practicante') {
         DOM.viewPracticanteDashboard.classList.remove('hidden');
@@ -2128,6 +2136,10 @@ DOM.btnLogout.addEventListener('click', () => {
     DOM.viewPracticanteDashboard.classList.add('hidden');
     DOM.viewTecnicoDashboard.classList.add('hidden');
     DOM.viewAdminDashboard.classList.add('hidden');
+
+    // Ocultar botones de jefe en la barra de navegación del empleado
+    EmpDOM.btnNavCrearSolicitud.classList.add('hidden');
+    EmpDOM.btnNavRevisarSolicitudes.classList.add('hidden');
     
     // Resetear formularios
     EmpDOM.formRegistrarIncidencia.reset();

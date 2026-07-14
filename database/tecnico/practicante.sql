@@ -235,14 +235,14 @@ BEGIN
     ELSE
         -- 4. Mostrar incidencias aplicando las reglas del diagrama de casos de uso
         SELECT 
-            inc.`id_incidencia` AS `ID`,
-            eq.`codigo_inventario` AS `Codigo_Equipo`,
-            CONCAT(u_rep.`nombres`, ' ', u_rep.`apellidos`) AS `Usuario_Reporta`,
-            IFNULL(CONCAT(t_rec.`nombres`, ' ', t_rec.`apellidos`), 'Sin asignar') AS `Tecnico_Asignado`,
-            inc.`descripcion` AS `Descripcion`,
-            inc.`prioridad` AS `Prioridad`,
-            inc.`estado` AS `Estado`,
-            inc.`fecha_creacion` AS `Fecha`
+            inc.`id_incidencia`,
+            eq.`codigo_inventario` AS `equipo_codigo`,
+            CONCAT(u_rep.`nombres`, ' ', u_rep.`apellidos`) AS `usuario_reporta_nombre`,
+            IFNULL(CONCAT(t_rec.`nombres`, ' ', t_rec.`apellidos`), 'Sin asignar') AS `tecnico_asignado`,
+            inc.`descripcion`,
+            inc.`prioridad`,
+            inc.`estado`,
+            inc.`fecha_creacion` AS `fecha`
         FROM `incidencia` inc
         LEFT JOIN `equipo` eq ON inc.`id_equipo` = eq.`id_equipo`
         INNER JOIN `usuario` u_rep ON inc.`id_usuario_reporta` = u_rep.`id_usuario`
@@ -675,7 +675,7 @@ DROP PROCEDURE IF EXISTS `sp_ver_todos_componentes` $$
 
 CREATE PROCEDURE `sp_ver_todos_componentes`()
 BEGIN
-    SELECT `componente_id`, `tipo`, `especificaciones_tecnicas`, `estado_fisico`, `asignado_a`
+    SELECT `componente_id`, `tipo`, `especificaciones_tecnicas`, `estado_fisico`, `asignado_a`, `id_equipo`, `id_ambiente`
     FROM `vw_componentes_detallados`
     ORDER BY `componente_id` DESC;
 END$$

@@ -131,12 +131,14 @@ CREATE PROCEDURE `sp_admin_ver_usuarios`()
 BEGIN
     SELECT 
         u.`id_usuario`,
-        CONCAT(u.`nombres`, ' ', u.`apellidos`) AS `nombre_completo`,
+        u.`nombres`,
+        u.`apellidos`,
         u.`correo`,
         u.`telefono`,
-        CONCAT(a.`pabellon`, ' - ', a.`numero`) AS `ambiente`,
-        u.`cargo` AS `cargo_rol`,
-        CASE WHEN u.`estado` = TRUE THEN 'Activo' ELSE 'Inactivo' END AS `estado`
+        u.`id_area`,
+        u.`cargo`,
+        CONCAT(a.`pabellon`, ' - ', a.`numero`, ' (', a.`nombre`, ')') AS `ambiente_nombre`,
+        u.`estado`
     FROM `usuario` u
     INNER JOIN `ambiente` a ON u.`id_area` = a.`id_ambiente`
     ORDER BY u.`estado` DESC, u.`apellidos` ASC, u.`nombres` ASC;
@@ -280,16 +282,14 @@ END$$
 CREATE PROCEDURE `sp_admin_ver_tecnicos`()
 BEGIN
     SELECT 
-        t.`id_tecnico` AS `id_usuario`,
-        CONCAT(t.`nombres`, ' ', t.`apellidos`) AS `nombre_completo`,
+        t.`id_tecnico`,
+        t.`nombres`,
+        t.`apellidos`,
         t.`correo`,
         t.`telefono`,
-        IFNULL(CONCAT(a.`pabellon`, ' - ', a.`numero`), 'Oficina de Soporte') AS `ambiente`,
-        t.`rango` AS `cargo_rol`,
-        CASE WHEN t.`estado` = TRUE THEN 'Activo' ELSE 'Inactivo' END AS `estado`
+        t.`rango`,
+        t.`estado`
     FROM `tecnico` t
-    LEFT JOIN `usuario` u ON t.`correo` = u.`correo`
-    LEFT JOIN `ambiente` a ON u.`id_area` = a.`id_ambiente`
     ORDER BY t.`estado` DESC, t.`apellidos` ASC, t.`nombres` ASC;
 END$$
 
@@ -348,8 +348,11 @@ END$$
 CREATE PROCEDURE `sp_admin_ver_areas`()
 BEGIN
     SELECT 
-        `id_ambiente` AS `id_area`,
-        CONCAT(`pabellon`, ' - Int. ', `numero`, ' (', `nombre`, ')') AS `nombre_area`
+        `id_ambiente`,
+        `numero`,
+        `nombre`,
+        `pabellon`,
+        `piso`
     FROM `ambiente`
     ORDER BY `nombre` ASC, `numero` ASC;
 END$$
@@ -541,7 +544,7 @@ END$$
 -- Ver todos los componentes (común para practicante, técnico y administrador)
 CREATE PROCEDURE `sp_ver_todos_componentes`()
 BEGIN
-    SELECT `componente_id`, `tipo`, `especificaciones_tecnicas`, `estado_fisico`, `asignado_a`
+    SELECT `componente_id`, `tipo`, `especificaciones_tecnicas`, `estado_fisico`, `asignado_a`, `id_equipo`, `id_ambiente`
     FROM `vw_componentes_detallados`
     ORDER BY `componente_id` DESC;
 END$$
