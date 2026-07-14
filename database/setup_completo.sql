@@ -73,31 +73,11 @@ CREATE TABLE `equipo` (
   `marca` varchar(255),
   `estado` ENUM ('operativo', 'mantenimiento', 'baja') NOT NULL DEFAULT 'operativo',
   `id_usuario` int NULL,
-  `id_ambiente` int NULL,
+  `id_ambiente` int NOT NULL,
   CONSTRAINT `chk_equipo_destino` CHECK (
-    (`id_usuario` IS NOT NULL AND `id_ambiente` IS NULL) OR 
-    (`id_usuario` IS NULL AND `id_ambiente` IS NOT NULL)
-  ),
+    (`id_usuario` IS NOT NULL OR `id_ambiente` IS NOT NULL)),
   CONSTRAINT `fk_equipo_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE RESTRICT,
   CONSTRAINT `fk_equipo_ambiente` FOREIGN KEY (`id_ambiente`) REFERENCES `ambiente` (`id_ambiente`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Tabla de detalles de laptop
-CREATE TABLE `laptop_detalle` (
-  `id_equipo` int PRIMARY KEY,
-  `modelo` varchar(255),
-  `serie` varchar(255) UNIQUE NOT NULL,
-  `tipo_procesador` ENUM ('intel', 'amd', 'arm'),
-  `detalle_procesador` varchar(255),
-  `tipo_ram` ENUM ('ddr1', 'ddr2', 'ddr3', 'ddr4', 'ddr5'),
-  `cantidad_ram` int,
-  `almacenamiento` ENUM ('ssd_sata', 'ssd_nvme', 'hdd'),
-  `cantidad_almacenamiento` int,
-  `tipo_grafica` ENUM ('dedicada', 'integrada'),
-  `nombre_grafica` varchar(255),
-  CONSTRAINT `chk_laptop_ram` CHECK (`cantidad_ram` IS NULL OR `cantidad_ram` > 0),
-  CONSTRAINT `chk_laptop_almacenamiento` CHECK (`cantidad_almacenamiento` IS NULL OR `cantidad_almacenamiento` > 0),
-  CONSTRAINT `fk_laptop_detalle_equipo` FOREIGN KEY (`id_equipo`) REFERENCES `equipo` (`id_equipo`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de componentes

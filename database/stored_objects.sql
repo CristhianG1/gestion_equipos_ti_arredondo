@@ -8,49 +8,52 @@ USE `soportefisi`;
 DROP PROCEDURE IF EXISTS `sp_registrar_incidencia`;
 
 DELIMITER $$
+
 -- -----------------------------------------------------------------------------
 -- SP: sp_registrar_incidencia
 -- Parámetros de entrada:
---   p_id_usuario        : ID del usuario que reporta
---   p_descripcion_falla : Descripción del problema/falla
---   p_prioridad         : Prioridad ('baja', 'media', 'alta')
+--   p_id_equipo   : ID del equipo que presenta la falla
+--   p_prioridad   : Prioridad de la incidencia ('baja', 'media', 'alta')
+--   p_descripcion : Descripción detallada de la falla
 -- -----------------------------------------------------------------------------
 CREATE PROCEDURE `sp_registrar_incidencia`(
-    IN p_id_usuario INT,
-    IN p_descripcion_falla TEXT,
-    IN p_prioridad ENUM('baja', 'media', 'alta')
+    IN p_id_equipo INT,
+    IN p_prioridad ENUM('baja', 'media', 'alta'),
+    IN p_descripcion TEXT
 )
 BEGIN
-    DECLARE v_id_equipo INT;
+    DECLARE v_id_usuario_reporta INT;
 
-    -- Obtener el equipo asignado al usuario (necesario por restricción NOT NULL en la tabla incidencia)
-    SELECT `id_equipo` INTO v_id_equipo 
-    FROM `equipo` 
-    WHERE `id_usuario` = p_id_usuario 
-    LIMIT 1;
+    -- Obtener el usuario asignado al equipo para colocarlo como reportante
+    SELECT `id_usuario` INTO v_id_usuario_reporta
+    FROM `equipo`
+    WHERE `id_equipo` = p_id_equipo;
 
-    -- Validar que el usuario tenga un equipo asignado
-    IF v_id_equipo IS NULL THEN
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'Error: El usuario no tiene un equipo asignado para registrar la incidencia.';
-    ELSE
-        -- Insertar la incidencia respetando los valores automáticos solicitados
-        INSERT INTO `incidencia` (
-            `id_equipo`,
-            `id_usuario_reporta`,
-            `descripcion`,
-            `prioridad`,
-            `estado`,
-            `fecha_creacion`
-        ) VALUES (
-            v_id_equipo,
-            p_id_usuario,
-            p_descripcion_falla,
-            p_prioridad,
-            'pendiente',
-            NOW()
-        );
+    -- Si el equipo no está asignado a un usuario (está en un ambiente/laboratorio),
+    -- tomamos el primer usuario activo de la base de datos para no violar la integridad referencial (NOT NULL)
+    IF v_id_usuario_reporta IS NULL THEN
+        SELECT `id_usuario` INTO v_id_usuario_reporta
+        FROM `usuario`
+        WHERE `estado` = TRUE
+        LIMIT 1;
     END IF;
+
+    -- Registrar la incidencia lista para que el técnico la revise
+    INSERT INTO `incidencia` (
+        `id_equipo`,
+        `id_usuario_reporta`,
+        `descripcion`,
+        `prioridad`,
+        `estado`,
+        `fecha_creacion`
+    ) VALUES (
+        p_id_equipo,
+        v_id_usuario_reporta,
+        p_descripcion,
+        p_prioridad,
+        'pendiente',
+        NOW()
+    );
 END $$
 
 DELIMITER ;
