@@ -42,22 +42,19 @@
                         <h3>Jefe de Área</h3>
                         <p>Genera solicitudes de TI, reporta incidencias y gestiona requerimientos.</p>
                     </div>
-                    <div class="role-card disabled" data-role="tecnico">
+                    <div class="role-card" data-role="tecnico">
                         <div class="icon">🔧</div>
                         <h3>Técnico</h3>
-                        <span class="badge-soon">Próximamente</span>
                         <p>Atiende incidencias, da de baja equipos y gestiona componentes.</p>
                     </div>
-                    <div class="role-card disabled" data-role="practicante">
+                    <div class="role-card" data-role="practicante">
                         <div class="icon">🎓</div>
                         <h3>Practicante</h3>
-                        <span class="badge-soon">Próximamente</span>
                         <p>Visualiza incidencias asignadas y apoya en la resolución rápida.</p>
                     </div>
-                    <div class="role-card disabled" data-role="administrador_sistema">
+                    <div class="role-card" data-role="administrador_sistema">
                         <div class="icon">⚙️</div>
                         <h3>Administrador</h3>
-                        <span class="badge-soon">Próximamente</span>
                         <p>Configuración completa del sistema y auditorías generales.</p>
                     </div>
                 </div>
@@ -256,6 +253,1170 @@
                     <div id="sol-response-container" class="info-block mt-4 hidden" style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid var(--color-success); padding: 1.25rem; border-radius: 8px;">
                         <span class="info-label" style="color: var(--color-success);">Fecha de Resolución / Respuesta:</span>
                         <span id="sol-detail-respuesta-fecha" class="info-value" style="display: block; margin-top: 0.5rem; font-weight: 600;"></span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- =============================================================================
+             PANTALLA 3: INTERFAZ DE PRACTICANTE
+             ============================================================================= -->
+        <main id="view-practicante-dashboard" class="view hidden">
+            <!-- Métricas Rápidas del Practicante -->
+            <div class="metrics-grid mb-4">
+                <div class="metric-card">
+                    <span class="metric-title">Tickets Asignados</span>
+                    <span class="metric-value" id="prac-stat-asignados">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Pendientes de Atención</span>
+                    <span class="metric-value" id="prac-stat-pendientes">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Tickets Resueltos</span>
+                    <span class="metric-value" id="prac-stat-resueltos">0</span>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button id="btn-prac-nav-incidencias" class="tab-btn active">Incidencias Asignadas</button>
+                <button id="btn-prac-nav-componentes" class="tab-btn">Inventario de Componentes</button>
+                <button id="btn-prac-nav-software" class="tab-btn">Catálogo de Software</button>
+            </div>
+
+            <!-- Panel 1: Incidencias Asignadas -->
+            <section id="panel-prac-incidencias" class="dashboard-panel">
+                <div class="card">
+                    <h2>Incidencias Asignadas a mí</h2>
+                    <p class="subtitle">Monitorea y resuelve las incidencias de soporte técnico bajo tu cargo</p>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Equipo</th>
+                                    <th>Prioridad</th>
+                                    <th>Reporta</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-prac-incidencias">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Detalle y Registro de Seguimiento (Practicante) -->
+                <div id="card-prac-atencion-detalle" class="card mt-4 hidden">
+                    <div class="card-header-split">
+                        <h3>Atención de Incidencia #<span id="prac-detail-id"></span></h3>
+                        <button id="btn-close-prac-detail" class="btn-close-x">✕</button>
+                    </div>
+                    <div class="incidencia-info-grid">
+                        <div class="info-block">
+                            <span class="info-label">Equipo Fisi:</span>
+                            <span id="prac-detail-equipo" class="info-value"></span>
+                        </div>
+                        <div class="info-block">
+                            <span class="info-label">Descripción:</span>
+                            <span id="prac-detail-descripcion" class="info-value"></span>
+                        </div>
+                        <div class="info-block">
+                            <span class="info-label">Estado actual:</span>
+                            <span id="prac-detail-estado" class="badge"></span>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Avance Técnico (sp_registrar_seguimiento_incidencia) -->
+                    <h4 class="mt-4">Registrar Diagnóstico y Avance Técnico</h4>
+                    <form id="form-prac-registrar-seguimiento" class="mt-2">
+                        <div class="form-group">
+                            <label for="prac-seg-diagnostico">Diagnóstico del Equipo</label>
+                            <textarea id="prac-seg-diagnostico" class="form-control" rows="3" placeholder="Diagnóstico de la falla..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="prac-seg-trabajo">Trabajo Realizado</label>
+                            <textarea id="prac-seg-trabajo" class="form-control" rows="3" placeholder="Escribe el trabajo correctivo o preventivo realizado..." required></textarea>
+                        </div>
+                        <div class="grid-2-col">
+                            <div class="form-group">
+                                <label for="prac-seg-horas">Horas Invertidas</label>
+                                <input type="number" step="0.25" id="prac-seg-horas" class="form-control" placeholder="Ej: 1.5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prac-seg-nuevo-estado">Nuevo Estado de la Incidencia</label>
+                                <select id="prac-seg-nuevo-estado" class="form-control" required>
+                                    <option value="en_proceso" selected>En Proceso (Seguir trabajando)</option>
+                                    <option value="resuelta">Resuelta (Solución completa)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="prac-seg-componente">Cambio de Componente Físico (Opcional)</label>
+                            <select id="prac-seg-componente" class="form-control">
+                                <option value="">-- Ninguno / No se requirió cambio --</option>
+                                <!-- Cargados dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success">Guardar Seguimiento en BD</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Panel 2: Ver Componentes -->
+            <section id="panel-prac-componentes" class="dashboard-panel hidden">
+                <div class="card">
+                    <h2>Componentes de Hardware en el Sistema</h2>
+                    <p class="subtitle">Lista unificada de procesadores, memorias, discos y tarjetas en uso o almacén</p>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tipo</th>
+                                    <th>Especificación Técnica</th>
+                                    <th>Estado Físico</th>
+                                    <th>Asignado A</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-prac-componentes">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 3: Software -->
+            <section id="panel-prac-software" class="dashboard-panel hidden">
+                <div class="card">
+                    <h2>Software Instalado en Equipos</h2>
+                    <p class="subtitle">Auditoría rápida de licencias y software en uso por las áreas</p>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Software</th>
+                                    <th>Licencia</th>
+                                    <th>Clave de Licencia</th>
+                                    <th>Fecha Instalación</th>
+                                    <th>Fecha Expiración</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-prac-software">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- =============================================================================
+             PANTALLA 4: INTERFAZ DE TÉCNICO
+             ============================================================================= -->
+        <main id="view-tecnico-dashboard" class="view hidden">
+            <!-- Métricas Rápidas del Técnico -->
+            <div class="metrics-grid mb-4">
+                <div class="metric-card">
+                    <span class="metric-title">Mis Incidentes Asignados</span>
+                    <span class="metric-value" id="tec-stat-asignados">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Total Pendientes en Sistema</span>
+                    <span class="metric-value" id="tec-stat-pendientes">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Incidencias Resueltas</span>
+                    <span class="metric-value" id="tec-stat-resueltos">0</span>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button id="btn-tec-nav-incidencias" class="tab-btn active">Gestionar Incidencias</button>
+                <button id="btn-tec-nav-registrar" class="tab-btn">Registrar Equipos</button>
+                <button id="btn-tec-nav-software" class="tab-btn">Gestionar Software</button>
+                <button id="btn-tec-nav-solicitudes" class="tab-btn">Solicitudes de Jefes</button>
+                <button id="btn-tec-nav-componentes" class="tab-btn">Inventario</button>
+            </div>
+
+            <!-- Panel 1: Gestionar Incidencias -->
+            <section id="panel-tec-incidencias" class="dashboard-panel">
+                <div class="card">
+                    <h2>Bandeja de Incidencias Globales</h2>
+                    <p class="subtitle">Atiende incidentes directamente o asígnalos a tu equipo de practicantes</p>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Equipo</th>
+                                    <th>Prioridad</th>
+                                    <th>Responsable</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-tec-incidencias">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modificar Asignación o Resolver (Técnico) -->
+                <div id="card-tec-atencion-detalle" class="card mt-4 hidden">
+                    <div class="card-header-split">
+                        <h3>Acciones en Incidencia #<span id="tec-detail-id"></span></h3>
+                        <button id="btn-close-tec-detail" class="btn-close-x">✕</button>
+                    </div>
+                    
+                    <div class="grid-2-col">
+                        <!-- Asignar Personal -->
+                        <div>
+                            <h4>Asignar Responsable</h4>
+                            <form id="form-tec-asignar" class="mt-2">
+                                <div class="form-group">
+                                    <label for="tec-asignar-personal">Seleccionar Técnico / Practicante</label>
+                                    <select id="tec-asignar-personal" class="form-control" required>
+                                        <!-- Cargados dinámicamente -->
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Asignar en BD</button>
+                            </form>
+                        </div>
+
+                        <!-- Registrar Seguimiento Directo -->
+                        <div>
+                            <h4>Registrar Avance / Trabajo</h4>
+                            <form id="form-tec-seguimiento" class="mt-2">
+                                <div class="form-group">
+                                    <label for="tec-seg-diagnostico">Diagnóstico</label>
+                                    <input type="text" id="tec-seg-diagnostico" class="form-control" placeholder="Diagnóstico..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tec-seg-trabajo">Trabajo Realizado</label>
+                                    <input type="text" id="tec-seg-trabajo" class="form-control" placeholder="Descripción de tareas..." required>
+                                </div>
+                                <div class="grid-2-col">
+                                    <div class="form-group">
+                                        <label for="tec-seg-horas">Horas</label>
+                                        <input type="number" step="0.25" id="tec-seg-horas" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tec-seg-estado">Nuevo Estado</label>
+                                        <select id="tec-seg-estado" class="form-control" required>
+                                            <option value="en_proceso" selected>En Proceso</option>
+                                            <option value="resuelta">Resuelta</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-block">Registrar Seguimiento</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registrar Incidencia Técnica Directamente -->
+                <div class="card mt-4">
+                    <h3>Reportar Incidencia Detectada en Campo</h3>
+                    <p class="subtitle">Registra fallas directamente en equipos desde el panel técnico</p>
+                    <form id="form-tec-registrar-incidencia-directa">
+                        <div class="grid-3-col">
+                            <div class="form-group">
+                                <label for="tec-inc-equipo">Equipo Fisi</label>
+                                <select id="tec-inc-equipo" class="form-control" required>
+                                    <!-- Equipos cargados dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tec-inc-prioridad">Prioridad</label>
+                                <select id="tec-inc-prioridad" class="form-control" required>
+                                    <option value="baja">Baja</option>
+                                    <option value="media" selected>Media</option>
+                                    <option value="alta">Alta</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tec-inc-creador">Reporta en Nombre De (Usuario)</label>
+                                <select id="tec-inc-creador" class="form-control" required>
+                                    <!-- Usuarios cargados dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tec-inc-descripcion">Descripción Falla</label>
+                            <textarea id="tec-inc-descripcion" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Registrar Incidencia</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Panel 2: Registrar Equipos (sp_registrar_equipo y sp_registrar_componentes) -->
+            <section id="panel-tec-registrar" class="dashboard-panel hidden">
+                <div class="card">
+                    <h2>Registrar Nuevos Equipos al Inventario</h2>
+                    <p class="subtitle">Permite el registro individual o en lote. Si especifica una cantidad superior a 1, el código secuencial se autogenerará secuencialmente.</p>
+                    
+                    <form id="form-tec-registrar-equipo">
+                        <div class="grid-3-col">
+                            <div class="form-group">
+                                <label for="eq-codigo">Código de Inventario Base</label>
+                                <input type="text" id="eq-codigo" class="form-control" placeholder="Ej: FISI-001" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="eq-tipo">Tipo de Equipo</label>
+                                <select id="eq-tipo" class="form-control" required>
+                                    <option value="pc_escritorio">Computadora de Escritorio (PC)</option>
+                                    <option value="laptop">Laptop</option>
+                                    <option value="proyector">Proyector</option>
+                                    <option value="teclado">Teclado</option>
+                                    <option value="mouse">Mouse</option>
+                                    <option value="monitor">Monitor</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="eq-origen">Origen</label>
+                                <select id="eq-origen" class="form-control" required>
+                                    <option value="comprado_ensamblado" selected>Comprado Ensamblado</option>
+                                    <option value="ensamblado_facultad">Ensamblado en la Facultad</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid-3-col">
+                            <div class="form-group">
+                                <label for="eq-marca">Marca</label>
+                                <input type="text" id="eq-marca" class="form-control" placeholder="Ej: HP, Lenovo, Custom..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="eq-estado">Estado Inicial</label>
+                                <select id="eq-estado" class="form-control" required>
+                                    <option value="operativo" selected>Operativo</option>
+                                    <option value="mantenimiento">Mantenimiento</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="eq-cantidad">Cantidad a Registrar</label>
+                                <input type="number" id="eq-cantidad" class="form-control" value="1" min="1" required>
+                            </div>
+                        </div>
+
+                        <div class="grid-2-col">
+                            <div class="form-group">
+                                <label for="eq-ambiente">Ubicación (Ambiente / Área)</label>
+                                <select id="eq-ambiente" class="form-control" required>
+                                    <!-- Ambientes cargados dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="eq-usuario">Usuario Responsable (Opcional)</label>
+                                <select id="eq-usuario" class="form-control">
+                                    <option value="">-- No Asignar a un Usuario Fijo --</option>
+                                    <!-- Usuarios cargados dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Componentes Adicionales para Laptop / PC -->
+                        <div id="sub-panel-componentes-laptop" class="mt-4 sub-panel hidden" style="border-top: 1px dashed var(--border-color); padding-top: 1.5rem;">
+                            <h3>Especificaciones de Laptop</h3>
+                            <div class="grid-3-col mt-2">
+                                <div class="form-group">
+                                    <label for="lap-modelo">Modelo Laptop</label>
+                                    <input type="text" id="lap-modelo" class="form-control" placeholder="Ej: ThinkPad E14">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lap-serie">Serie Base</label>
+                                    <input type="text" id="lap-serie" class="form-control" placeholder="Ej: LSN-1234">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lap-cpu-marca">Marca Procesador</label>
+                                    <input type="text" id="lap-cpu-marca" class="form-control" placeholder="Ej: Intel, AMD">
+                                </div>
+                            </div>
+                            <div class="grid-3-col">
+                                <div class="form-group">
+                                    <label for="lap-cpu-modelo">Modelo Procesador</label>
+                                    <input type="text" id="lap-cpu-modelo" class="form-control" placeholder="Ej: Core i5-1135G7">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lap-ram-tipo">Tipo RAM</label>
+                                    <select id="lap-ram-tipo" class="form-control">
+                                        <option value="DDR4" selected>DDR4</option>
+                                        <option value="DDR5">DDR5</option>
+                                        <option value="DDR3">DDR3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lap-ram-capacidad">Capacidad RAM (GB)</label>
+                                    <input type="number" id="lap-ram-capacidad" class="form-control" placeholder="Ej: 16">
+                                </div>
+                            </div>
+                            <div class="grid-4-col">
+                                <div class="form-group">
+                                    <label for="lap-disco-tipo">Tipo Almacenamiento</label>
+                                    <select id="lap-disco-tipo" class="form-control">
+                                        <option value="ssd" selected>SSD</option>
+                                        <option value="hdd">HDD</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lap-disco-capacidad">Capacidad Almacenamiento (GB)</label>
+                                    <input type="number" id="lap-disco-capacidad" class="form-control" placeholder="Ej: 512">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lap-gpu-tipo">Tipo de Gráficos</label>
+                                    <input type="text" id="lap-gpu-tipo" class="form-control" placeholder="Ej: Integrados, Dedicados">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lap-gpu-modelo">Modelo Tarjeta Gráfica</label>
+                                    <input type="text" id="lap-gpu-modelo" class="form-control" placeholder="Ej: Intel Iris Xe, RTX 3050">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sub-panel-componentes-pc" class="mt-4 sub-panel hidden" style="border-top: 1px dashed var(--border-color); padding-top: 1.5rem;">
+                            <h3>Especificaciones del CPU (PC Escritorio)</h3>
+                            <div class="grid-3-col mt-2">
+                                <div class="form-group">
+                                    <label for="pc-cpu-marca">Marca Procesador</label>
+                                    <input type="text" id="pc-cpu-marca" class="form-control" placeholder="Intel">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-cpu-modelo">Modelo Procesador</label>
+                                    <input type="text" id="pc-cpu-modelo" class="form-control" placeholder="Core i7-12700">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-ram-marca">Marca RAM</label>
+                                    <input type="text" id="pc-ram-marca" class="form-control" placeholder="Kingston">
+                                </div>
+                            </div>
+                            <div class="grid-3-col">
+                                <div class="form-group">
+                                    <label for="pc-ram-capacidad">Capacidad RAM (GB)</label>
+                                    <input type="number" id="pc-ram-capacidad" class="form-control" placeholder="16">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-ram-tipo">Tipo RAM</label>
+                                    <select id="pc-ram-tipo" class="form-control">
+                                        <option value="DDR4" selected>DDR4</option>
+                                        <option value="DDR5">DDR5</option>
+                                        <option value="DDR3">DDR3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-disco-marca">Marca Disco</label>
+                                    <input type="text" id="pc-disco-marca" class="form-control" placeholder="Crucial">
+                                </div>
+                            </div>
+                            <div class="grid-3-col">
+                                <div class="form-group">
+                                    <label for="pc-disco-modelo">Modelo Disco</label>
+                                    <input type="text" id="pc-disco-modelo" class="form-control" placeholder="P3 Plus">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-disco-tipo">Tipo de Disco</label>
+                                    <select id="pc-disco-tipo" class="form-control">
+                                        <option value="ssd" selected>SSD</option>
+                                        <option value="hdd">HDD</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-disco-capacidad">Capacidad Almacenamiento (GB)</label>
+                                    <input type="number" id="pc-disco-capacidad" class="form-control" placeholder="1000">
+                                </div>
+                            </div>
+                            <div class="grid-4-col">
+                                <div class="form-group">
+                                    <label for="pc-placa-marca">Marca Placa Madre</label>
+                                    <input type="text" id="pc-placa-marca" class="form-control" placeholder="ASUS">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-placa-modelo">Modelo Placa Madre</label>
+                                    <input type="text" id="pc-placa-modelo" class="form-control" placeholder="PRIME B660M-A">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-placa-socket">Socket Placa</label>
+                                    <input type="text" id="pc-placa-socket" class="form-control" placeholder="LGA1700">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-placa-tamano">Factor de Forma</label>
+                                    <input type="text" id="pc-placa-tamano" class="form-control" placeholder="Micro-ATX">
+                                </div>
+                            </div>
+                            <div class="grid-4-col">
+                                <div class="form-group">
+                                    <label for="pc-fuente-marca">Marca Fuente</label>
+                                    <input type="text" id="pc-fuente-marca" class="form-control" placeholder="EVGA">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-fuente-modelo">Modelo Fuente</label>
+                                    <input type="text" id="pc-fuente-modelo" class="form-control" placeholder="600 W1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-fuente-potencia">Potencia Fuente (Watts)</label>
+                                    <input type="number" id="pc-fuente-potencia" class="form-control" placeholder="600">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-fuente-certificacion">Certificación</label>
+                                    <input type="text" id="pc-fuente-certificacion" class="form-control" placeholder="80 Plus White">
+                                </div>
+                            </div>
+                            <div class="grid-3-col">
+                                <div class="form-group">
+                                    <label for="pc-gpu-marca">Marca Gráfica</label>
+                                    <input type="text" id="pc-gpu-marca" class="form-control" placeholder="NVIDIA">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-gpu-modelo">Modelo GPU</label>
+                                    <input type="text" id="pc-gpu-modelo" class="form-control" placeholder="RTX 4060">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pc-gpu-vram">VRAM GPU (GB)</label>
+                                    <input type="number" id="pc-gpu-vram" class="form-control" placeholder="8">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions mt-4">
+                            <button type="submit" class="btn btn-primary btn-block">Registrar Equipos y Componentes</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Panel 3: Gestionar Software (sp_registrar_software, sp_registrar_instalacion_software) -->
+            <section id="panel-tec-software" class="dashboard-panel hidden">
+                <div class="grid-2-col">
+                    <!-- Registrar Software en Catálogo -->
+                    <div class="card">
+                        <h3>Agregar Software al Catálogo</h3>
+                        <p class="subtitle">Registra nombres de programas permitidos en la facultad</p>
+                        <form id="form-tec-software-catalogo">
+                            <div class="form-group">
+                                <label for="soft-cat-nombre">Nombre de la Aplicación</label>
+                                <input type="text" id="soft-cat-nombre" class="form-control" placeholder="Ej: AutoCAD 2024, SPSS Statistics..." required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Añadir al Catálogo</button>
+                        </form>
+                    </div>
+
+                    <!-- Registrar Instalación de Software -->
+                    <div class="card">
+                        <h3>Registrar Instalación / Licencia</h3>
+                        <p class="subtitle">Asigna un software del catálogo a una PC o Laptop física</p>
+                        <form id="form-tec-software-instalar">
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="soft-ins-equipo">Equipo Fisi</label>
+                                    <select id="soft-ins-equipo" class="form-control" required>
+                                        <!-- Cargado dinámicamente -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="soft-ins-software">Software</label>
+                                    <select id="soft-ins-software" class="form-control" required>
+                                        <!-- Cargado dinámicamente -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="soft-ins-licencia">Tipo Licencia</label>
+                                    <select id="soft-ins-licencia" class="form-control" required>
+                                        <option value="libre">Libre / Open Source</option>
+                                        <option value="educativa" selected>Educativa / Institucional</option>
+                                        <option value="comercial">Comercial / Pagada</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="soft-ins-clave">Clave Licencia (Opcional)</label>
+                                    <input type="text" id="soft-ins-clave" class="form-control" placeholder="AAAA-BBBB-CCCC-DDDD">
+                                </div>
+                            </div>
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="soft-ins-fecha">Fecha Instalación</label>
+                                    <input type="date" id="soft-ins-fecha" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="soft-ins-expiracion">Fecha Expiración (Opcional)</label>
+                                    <input type="date" id="soft-ins-expiracion" class="form-control">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">Registrar Instalación</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tabla de Software Instalado -->
+                <div class="card mt-4">
+                    <h3>Inventario de Licencias y Programas Instalados</h3>
+                    <p class="subtitle">Historial general de programas instalados en los equipos de la facultad</p>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Software</th>
+                                    <th>Licencia</th>
+                                    <th>Clave</th>
+                                    <th>Instalado</th>
+                                    <th>Expiración</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-tec-software-instalado">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Editar Software Instalado Modal/Card -->
+                <div id="card-tec-editar-software" class="card mt-4 hidden">
+                    <div class="card-header-split">
+                        <h3>Editar Licencia Software</h3>
+                        <button id="btn-close-soft-edit" class="btn-close-x">✕</button>
+                    </div>
+                    <form id="form-tec-software-editar">
+                        <input type="hidden" id="soft-edit-id-equipo">
+                        <input type="hidden" id="soft-edit-id-software">
+                        <div class="grid-2-col">
+                            <div class="form-group">
+                                <label for="soft-edit-licencia">Tipo Licencia</label>
+                                <select id="soft-edit-licencia" class="form-control" required>
+                                    <option value="libre">Libre</option>
+                                    <option value="educativa">Educativa</option>
+                                    <option value="comercial">Comercial</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="soft-edit-clave">Clave Licencia</label>
+                                <input type="text" id="soft-edit-clave" class="form-control">
+                            </div>
+                        </div>
+                        <div class="grid-2-col">
+                            <div class="form-group">
+                                <label for="soft-edit-fecha">Fecha Instalación</label>
+                                <input type="date" id="soft-edit-fecha" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="soft-edit-expiracion">Fecha Expiración</label>
+                                <input type="date" id="soft-edit-expiracion" class="form-control">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Actualizar Cambios en BD</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Panel 4: Solicitudes de Jefes -->
+            <section id="panel-tec-solicitudes" class="dashboard-panel hidden">
+                <div class="card">
+                    <h2>Requerimientos de Adquisición / Remodelación de Jefes</h2>
+                    <p class="subtitle">Lista de solicitudes enviadas por los Jefes de Área para compras o actualizaciones</p>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Jefe Solicitante</th>
+                                    <th>Tipo</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-tec-solicitudes">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 5: Componentes -->
+            <section id="panel-tec-componentes" class="dashboard-panel hidden">
+                <div class="card">
+                    <h2>Inventario Técnico de Componentes</h2>
+                    <p class="subtitle">Visualiza el hardware y componentes instalados en cada equipo de la facultad</p>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tipo</th>
+                                    <th>Detalles Técnicos</th>
+                                    <th>Estado Físico</th>
+                                    <th>Ubicación / Equipo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-tec-componentes">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- =============================================================================
+             PANTALLA 5: INTERFAZ DE ADMINISTRADOR (SUPERUSER)
+             ============================================================================= -->
+        <main id="view-admin-dashboard" class="view hidden">
+            <!-- Indicadores Globales de la Facultad (UDFs) -->
+            <div class="metrics-grid mb-4">
+                <div class="metric-card">
+                    <span class="metric-title">Equipos Activos</span>
+                    <span class="metric-value" id="adm-stat-equipos">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Incidencias Activas</span>
+                    <span class="metric-value" id="adm-stat-incidencias">0</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Personal Técnico Activo</span>
+                    <span class="metric-value" id="adm-stat-personal">0</span>
+                </div>
+                <div class="metric-card" style="border-color: var(--color-warning);">
+                    <span class="metric-title">Solicitudes Pendientes</span>
+                    <span class="metric-value" id="adm-stat-solicitudes">0</span>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button id="btn-adm-nav-inicio" class="tab-btn active">Monitoreo General</button>
+                <button id="btn-adm-nav-tecnicos" class="tab-btn">Gestionar Técnicos</button>
+                <button id="btn-adm-nav-usuarios" class="tab-btn">Gestionar Usuarios</button>
+                <button id="btn-adm-nav-areas" class="tab-btn">Gestionar Áreas</button>
+                <button id="btn-adm-nav-componentes" class="tab-btn">Inventario Componentes</button>
+                <button id="btn-adm-nav-auditoria" class="tab-btn">Auditoría (Logs)</button>
+            </div>
+
+            <!-- Panel 1: Monitoreo General -->
+            <section id="panel-adm-inicio" class="dashboard-panel">
+                <div class="grid-2-col">
+                    <!-- Últimos 5 incidentes globales -->
+                    <div class="card">
+                        <h3>Últimos 5 Incidentes Globales</h3>
+                        <p class="subtitle">Monitoreo en tiempo real de fallas reportadas por el personal de oficina</p>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Prioridad</th>
+                                        <th>Estado</th>
+                                        <th>Acción de Avance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-adm-ultimos-incidentes">
+                                    <!-- Cargado dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Solicitudes de Jefes con Acciones Aceptar / Rechazar -->
+                    <div class="card">
+                        <h3>Aprobar / Rechazar Requerimientos de Compras</h3>
+                        <p class="subtitle">Gestiona las solicitudes de remodelación o adquisiciones de los jefes</p>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Solicitante</th>
+                                        <th>Tipo</th>
+                                        <th>Descripción</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-adm-procesar-solicitudes">
+                                    <!-- Cargado dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 2: Gestionar Técnicos -->
+            <section id="panel-adm-tecnicos" class="dashboard-panel hidden">
+                <div class="grid-2-col">
+                    <!-- Formulario de Registro / Edición -->
+                    <div class="card">
+                        <h3 id="adm-tec-form-title">Registrar Nuevo Personal Técnico / Practicante</h3>
+                        <form id="form-adm-tecnico">
+                            <input type="hidden" id="adm-tec-id">
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="adm-tec-nombres">Nombres</label>
+                                    <input type="text" id="adm-tec-nombres" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="adm-tec-apellidos">Apellidos</label>
+                                    <input type="text" id="adm-tec-apellidos" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="adm-tec-correo">Correo Electrónico</label>
+                                <input type="email" id="adm-tec-correo" class="form-control" required>
+                            </div>
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="adm-tec-telefono">Teléfono</label>
+                                    <input type="text" id="adm-tec-telefono" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="adm-tec-rango">Rol / Cargo Técnico</label>
+                                    <select id="adm-tec-rango" class="form-control" required>
+                                        <option value="practicante">Practicante (Soporte Nivel 1)</option>
+                                        <option value="tecnico" selected>Técnico (Soporte Nivel 2)</option>
+                                        <option value="administrador_sistema">Administrador de Sistemas</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group" id="adm-tec-pass-group">
+                                <label for="adm-tec-pass">Contraseña Inicial</label>
+                                <input type="password" id="adm-tec-pass" class="form-control" required>
+                            </div>
+                            <div class="form-group hidden" id="adm-tec-status-group">
+                                <label for="adm-tec-estado">Estado de Cuenta</label>
+                                <select id="adm-tec-estado" class="form-control">
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo / Baja Lógica</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="btn-adm-tec-save">Guardar Técnico</button>
+                                <button type="button" class="btn btn-secondary hidden" id="btn-adm-tec-cancel">Cancelar Edición</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Lista de Técnicos -->
+                    <div class="card">
+                        <h3>Personal Técnico de Soporte</h3>
+                        <p class="subtitle">Lista general y estados. Los inactivos aparecerán al final de la lista.</p>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Rol</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-adm-tecnicos">
+                                    <!-- Cargado dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Rendimiento / Métricas UDF -->
+                <div class="card mt-4">
+                    <h3>Métricas de Desempeño y KPI de Técnicos</h3>
+                    <p class="subtitle">Monitoreo de horas invertidas, incidencias resueltas y tiempo promedio de solución</p>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre Técnico</th>
+                                    <th>Rango</th>
+                                    <th>Asignadas</th>
+                                    <th>Resueltas</th>
+                                    <th>Pendientes</th>
+                                    <th>Horas Totales</th>
+                                    <th>Promedio Horas / Incidente</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-adm-metricas-tecnicos">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 3: Gestionar Usuarios -->
+            <section id="panel-adm-usuarios" class="dashboard-panel hidden">
+                <div class="grid-2-col">
+                    <!-- Formulario de Registro / Edición -->
+                    <div class="card">
+                        <h3 id="adm-user-form-title">Registrar Nuevo Usuario Común</h3>
+                        <form id="form-adm-usuario">
+                            <input type="hidden" id="adm-user-id">
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="adm-user-nombres">Nombres</label>
+                                    <input type="text" id="adm-user-nombres" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="adm-user-apellidos">Apellidos</label>
+                                    <input type="text" id="adm-user-apellidos" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="adm-user-correo">Correo</label>
+                                <input type="email" id="adm-user-correo" class="form-control" required>
+                            </div>
+                            <div class="grid-3-col">
+                                <div class="form-group">
+                                    <label for="adm-user-telefono">Teléfono</label>
+                                    <input type="text" id="adm-user-telefono" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="adm-user-cargo">Cargo</label>
+                                    <select id="adm-user-cargo" class="form-control" required>
+                                        <option value="empleado" selected>Empleado Oficina</option>
+                                        <option value="jefe">Jefe de Área</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="adm-user-area">Área / Ambiente</label>
+                                    <select id="adm-user-area" class="form-control" required>
+                                        <!-- Cargado dinámicamente -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group" id="adm-user-pass-group">
+                                <label for="adm-user-pass">Contraseña Inicial</label>
+                                <input type="password" id="adm-user-pass" class="form-control" required>
+                            </div>
+                            <div class="form-group hidden" id="adm-user-status-group">
+                                <label for="adm-user-estado">Estado</label>
+                                <select id="adm-user-estado" class="form-control">
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo / Baja Lógica</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="btn-adm-user-save">Guardar Usuario</button>
+                                <button type="button" class="btn btn-secondary hidden" id="btn-adm-user-cancel">Cancelar Edición</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Lista de Usuarios -->
+                    <div class="card">
+                        <h3>Lista de Cuentas de Usuarios</h3>
+                        <p class="subtitle">Monitoreo de cuentas de empleado y jefes de área de la facultad</p>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Área</th>
+                                        <th>Cargo</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-adm-usuarios">
+                                    <!-- Cargado dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 4: Gestionar Áreas -->
+            <section id="panel-adm-areas" class="dashboard-panel hidden">
+                <div class="grid-2-col">
+                    <!-- Registrar Área -->
+                    <div class="card">
+                        <h3>Registrar Nuevo Ambiente / Área</h3>
+                        <p class="subtitle">Define nuevas aulas, laboratorios u oficinas en la facultad</p>
+                        <form id="form-adm-area">
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="area-numero">Número de Aula / Oficina</label>
+                                    <input type="number" id="area-numero" class="form-control" placeholder="Ej: 104" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="area-nombre">Nombre Descriptivo</label>
+                                    <input type="text" id="area-nombre" class="form-control" placeholder="Ej: Laboratorio Redes" required>
+                                </div>
+                            </div>
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="area-pabellon">Pabellón</label>
+                                    <select id="area-pabellon" class="form-control" required>
+                                        <option value="Nuevo" selected>Pabellón Nuevo</option>
+                                        <option value="Antiguo">Pabellón Antiguo</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="area-piso">Piso</label>
+                                    <input type="number" id="area-piso" class="form-control" min="1" max="5" value="1" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Registrar Área</button>
+                        </form>
+                    </div>
+
+                    <!-- Lista de Áreas -->
+                    <div class="card">
+                        <h3>Ambientes Registrados en Base de Datos</h3>
+                        <p class="subtitle">Lista física de áreas para inventarios y reportes de incidencias</p>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Número</th>
+                                        <th>Nombre</th>
+                                        <th>Pabellón</th>
+                                        <th>Piso</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-adm-areas">
+                                    <!-- Cargado dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 5: Componentes Físicos (Administración global) -->
+            <section id="panel-adm-componentes" class="dashboard-panel hidden">
+                <div class="grid-2-col">
+                    <!-- Registrar/Editar Componente -->
+                    <div class="card">
+                        <h3 id="adm-comp-form-title">Ingresar Componente Físico al Inventario</h3>
+                        <p class="subtitle">Registra procesadores, memorias, discos o placas de forma independiente para equipos o almacenes</p>
+                        <form id="form-adm-componente">
+                            <input type="hidden" id="adm-comp-id">
+                            <div class="grid-2-col">
+                                <div class="form-group">
+                                    <label for="comp-destino-tipo">Destino del Componente</label>
+                                    <select id="comp-destino-tipo" class="form-control" required>
+                                        <option value="equipo" selected>Instalado en un Equipo</option>
+                                        <option value="ambiente">Almacenado en un Ambiente (Stock)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group id-equipo-group">
+                                    <label for="comp-id-equipo">Equipo Fisi</label>
+                                    <select id="comp-id-equipo" class="form-control">
+                                        <!-- Cargado dinámicamente -->
+                                    </select>
+                                </div>
+                                <div class="form-group id-ambiente-group hidden">
+                                    <label for="comp-id-ambiente">Ambiente / Almacén</label>
+                                    <select id="comp-id-ambiente" class="form-control">
+                                        <!-- Cargado dinámicamente -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid-3-col">
+                                <div class="form-group">
+                                    <label for="comp-estado">Estado Físico</label>
+                                    <select id="comp-estado" class="form-control" required>
+                                        <option value="operativo" selected>Operativo</option>
+                                        <option value="almacenado">Almacenado (Stock)</option>
+                                        <option value="mantenimiento">En Mantenimiento</option>
+                                        <option value="baja">Baja Definitiva</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comp-tipo">Tipo de Componente</label>
+                                    <select id="comp-tipo" class="form-control" required>
+                                        <option value="procesador" selected>Procesador (CPU)</option>
+                                        <option value="memoria_ram">Memoria RAM</option>
+                                        <option value="almacenamiento">Almacenamiento (SSD/HDD)</option>
+                                        <option value="tarjeta_grafica">Tarjeta Gráfica (GPU)</option>
+                                        <option value="placa_madre">Placa Madre</option>
+                                        <option value="fuente_poder">Fuente de Poder</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comp-marca">Marca</label>
+                                    <input type="text" id="comp-marca" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="grid-3-col">
+                                <div class="form-group">
+                                    <label for="comp-modelo">Modelo</label>
+                                    <input type="text" id="comp-modelo" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comp-capacidad">Capacidad / Watts (Número)</label>
+                                    <input type="number" id="comp-capacidad" class="form-control" placeholder="Ej: 16, 512, 650">
+                                </div>
+                                <div class="form-group">
+                                    <label for="comp-detalle">Detalle (Socket/DDR/SSD/Certif)</label>
+                                    <input type="text" id="comp-detalle" class="form-control" placeholder="Ej: DDR4, ssd, LGA1700, Gold">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="btn-adm-comp-save">Registrar Componente</button>
+                                <button type="button" class="btn btn-secondary hidden" id="btn-adm-comp-cancel">Cancelar Edición</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Lista de Componentes Físicos -->
+                    <div class="card">
+                        <h3>Lista General de Hardware</h3>
+                        <p class="subtitle">Todos los componentes físicos registrados en la base de datos de la facultad</p>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tipo</th>
+                                        <th>Especificaciones</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-adm-componentes">
+                                    <!-- Cargado dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 6: Auditoría de Logs -->
+            <section id="panel-adm-auditoria" class="dashboard-panel hidden">
+                <div class="card">
+                    <h2>Bitácora de Auditoría del Personal Técnico</h2>
+                    <p class="subtitle">Auditoría física capturada por triggers en formato JSON al realizar INSERT, UPDATE o DELETE</p>
+                    
+                    <div class="table-container">
+                        <table class="table" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Responsable</th>
+                                    <th>Tabla Afectada</th>
+                                    <th>Operación</th>
+                                    <th>Valor Nuevo (JSON)</th>
+                                    <th>Valor Anterior (JSON)</th>
+                                    <th>Fecha y Hora</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-adm-auditoria">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
