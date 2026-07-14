@@ -78,6 +78,8 @@ END $$
 
 DELIMITER ;
 
+DELIMITER $$
+
 -- -----------------------------------------------------------------------------
 -- SP: sp_revisar_equipos_por_area_usuario
 -- Parámetros de entrada:
