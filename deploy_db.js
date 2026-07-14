@@ -98,6 +98,7 @@ async function runDeploy() {
         { path: 'database/usuario/sp_jefe.sql' },
         { path: 'database/tecnico/practicante.sql' },
         { path: 'database/tecnico/tecnico.sql' },
+        { path: 'database/tecnico/sp_tecnico.sql' },
         { path: 'database/admin/administrador.sql' },
         { path: 'database/roles.sql' },
         { path: 'triggers/triggers.sql' }

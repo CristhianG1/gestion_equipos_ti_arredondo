@@ -333,6 +333,23 @@ app.post('/api/soporte/incidencia/asignar', async (req, res) => {
     }
 });
 
+// Asignar componente a PC de escritorio (Técnico y Administrador)
+app.post('/api/soporte/componentes/asignar-pc', async (req, res) => {
+    const { id_tecnico_sesion, id_componente, id_equipo } = req.body;
+    try {
+        await runWithSession(id_tecnico_sesion, async (connection) => {
+            await connection.query(
+                'CALL sp_asignar_componente_pc_escritorio(?, ?, ?)',
+                [id_tecnico_sesion, id_componente, id_equipo]
+            );
+        });
+        res.json({ success: true, message: 'Componente asignado al equipo PC de escritorio con éxito.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.sqlMessage || 'Error al asignar componente al equipo.' });
+    }
+});
+
 // Registrar incidencia por parte de soporte (Técnico)
 app.post('/api/soporte/incidencia/tecnico', async (req, res) => {
     const { id_tecnico, id_equipo, prioridad, descripcion } = req.body;

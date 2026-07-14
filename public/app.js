@@ -408,7 +408,7 @@ async function loadIncidenciasPracticante() {
         PracDOM.tbodyIncidencias.innerHTML = '';
         
         if (data.length === 0) {
-            PracDOM.tbodyIncidencias.innerHTML = `<tr><td colspan="6" class="empty-state">No posees incidencias asignadas.</td></tr>`;
+            PracDOM.tbodyIncidencias.innerHTML = `<tr><td colspan="7" class="empty-state">No posees incidencias asignadas.</td></tr>`;
             return;
         }
         
@@ -419,6 +419,7 @@ async function loadIncidenciasPracticante() {
                 <td>${inc.equipo_codigo || 'N/A'}</td>
                 <td><span class="priority-badge priority-${inc.prioridad}">${inc.prioridad}</span></td>
                 <td>${inc.usuario_reporta_nombre || 'N/A'}</td>
+                <td>${inc.descripcion || ''}</td>
                 <td><span class="badge badge-${inc.estado}">${inc.estado}</span></td>
                 <td><button class="btn btn-primary btn-sm btn-prac-atender" data-id="${inc.id_incidencia}" data-eq="${inc.equipo_codigo || 'EQUIP-' + inc.id_equipo}" data-desc="${inc.descripcion}" data-est="${inc.estado}">Atender</button></td>
             `;
@@ -606,6 +607,10 @@ const TecDOM = {
     panelComponentes: document.getElementById('panel-tec-componentes'),
     
     tbodyIncidencias: document.getElementById('tbody-tec-incidencias'),
+    
+    filterEstado: document.getElementById('tec-filter-estado'),
+    filterPrioridad: document.getElementById('tec-filter-prioridad'),
+    sortOrden: document.getElementById('tec-sort-orden'),
     tbodySolicitudes: document.getElementById('tbody-tec-solicitudes'),
     tbodyComponentes: document.getElementById('tbody-tec-componentes'),
     
@@ -681,35 +686,7 @@ async function loadTecnicoMetrics() {
 
 // Cargar incidencias globales en el panel del técnico
 async function loadIncidenciasTecnico() {
-    try {
-        const res = await fetch(`/api/soporte/incidencias/${currentSession.userId}`);
-        const data = await res.json();
-        TecDOM.tbodyIncidencias.innerHTML = '';
-        if (data.length === 0) {
-            TecDOM.tbodyIncidencias.innerHTML = `<tr><td colspan="6" class="empty-state">No hay incidencias en el sistema.</td></tr>`;
-            return;
-        }
-        data.forEach(inc => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>#${inc.id_incidencia}</td>
-                <td>${inc.equipo_codigo || 'N/A'}</td>
-                <td><span class="priority-badge priority-${inc.prioridad}">${inc.prioridad}</span></td>
-                <td>${inc.tecnico_asignado || '<em style="color: var(--color-warning);">No Asignado</em>'}</td>
-                <td><span class="badge badge-${inc.estado}">${inc.estado}</span></td>
-                <td><button class="btn btn-primary btn-sm btn-tec-atender" data-id="${inc.id_incidencia}">Atender / Asignar</button></td>
-            `;
-            TecDOM.tbodyIncidencias.appendChild(row);
-        });
-
-        TecDOM.tbodyIncidencias.querySelectorAll('.btn-tec-atender').forEach(btn => {
-            btn.addEventListener('click', () => {
-                showAtencionIncidenciaTecnico(btn.getAttribute('data-id'));
-            });
-        });
-    } catch (err) {
-        showToast('Error al cargar incidencias.', 'danger');
-    }
+    await fetchAndRenderIncidencias('tecnico');
 }
 
 async function showAtencionIncidenciaTecnico(id) {
@@ -871,19 +848,30 @@ async function loadComponentesTecnico() {
         const data = await res.json();
         TecDOM.tbodyComponentes.innerHTML = '';
         if (data.length === 0) {
-            TecDOM.tbodyComponentes.innerHTML = `<tr><td colspan="5" class="empty-state">No hay componentes en almacén o equipos.</td></tr>`;
+            TecDOM.tbodyComponentes.innerHTML = `<tr><td colspan="6" class="empty-state">No hay componentes en almacén o equipos.</td></tr>`;
             return;
         }
         data.forEach(c => {
             const row = document.createElement('tr');
+            let actionsHtml = '<em>N/A</em>';
+            if (c.estado_fisico === 'almacenado') {
+                actionsHtml = `<button class="btn btn-primary btn-sm btn-tec-comp-assign" data-id="${c.componente_id}" data-desc="${c.tipo} - ${c.especificaciones_tecnicas}">Asignar a PC</button>`;
+            }
             row.innerHTML = `
                 <td>#${c.componente_id}</td>
                 <td><strong>${c.tipo}</strong></td>
                 <td>${c.especificaciones_tecnicas}</td>
                 <td><span class="badge badge-${c.estado_fisico}">${c.estado_fisico}</span></td>
                 <td>${c.asignado_a}</td>
+                <td>${actionsHtml}</td>
             `;
             TecDOM.tbodyComponentes.appendChild(row);
+        });
+
+        TecDOM.tbodyComponentes.querySelectorAll('.btn-tec-comp-assign').forEach(btn => {
+            btn.addEventListener('click', () => {
+                abrirModalAsignacion(btn.getAttribute('data-id'), btn.getAttribute('data-desc'));
+            });
         });
     } catch (err) {
         showToast('Error al cargar componentes.', 'danger');
@@ -1251,6 +1239,7 @@ TecDOM.formSoftwareEditar.addEventListener('submit', async (e) => {
 // =============================================================================
 const AdmDOM = {
     btnNavInicio: document.getElementById('btn-adm-nav-inicio'),
+    btnNavIncidencias: document.getElementById('btn-adm-nav-incidencias'),
     btnNavTecnicos: document.getElementById('btn-adm-nav-tecnicos'),
     btnNavUsuarios: document.getElementById('btn-adm-nav-usuarios'),
     btnNavAreas: document.getElementById('btn-adm-nav-areas'),
@@ -1258,6 +1247,7 @@ const AdmDOM = {
     btnNavAuditoria: document.getElementById('btn-adm-nav-auditoria'),
     
     panelInicio: document.getElementById('panel-adm-inicio'),
+    panelIncidencias: document.getElementById('panel-adm-incidencias'),
     panelTecnicos: document.getElementById('panel-adm-tecnicos'),
     panelUsuarios: document.getElementById('panel-adm-usuarios'),
     panelAreas: document.getElementById('panel-adm-areas'),
@@ -1267,12 +1257,30 @@ const AdmDOM = {
     tbodyUltimosIncidentes: document.getElementById('tbody-adm-ultimos-incidentes'),
     tbodyProcesarSolicitudes: document.getElementById('tbody-adm-procesar-solicitudes'),
     
+    tbodyIncidencias: document.getElementById('tbody-adm-incidencias'),
     tbodyTecnicos: document.getElementById('tbody-adm-tecnicos'),
     tbodyMetricasTecnicos: document.getElementById('tbody-adm-metricas-tecnicos'),
     tbodyUsuarios: document.getElementById('tbody-adm-usuarios'),
     tbodyAreas: document.getElementById('tbody-adm-areas'),
     tbodyComponentes: document.getElementById('tbody-adm-componentes'),
     tbodyAuditoria: document.getElementById('tbody-adm-auditoria'),
+
+    cardAtencionDetalle: document.getElementById('card-adm-atencion-detalle'),
+    btnCloseDetail: document.getElementById('btn-close-adm-detail'),
+    detailId: document.getElementById('adm-detail-id'),
+    
+    formAsignar: document.getElementById('form-adm-asignar'),
+    asignarPersonal: document.getElementById('adm-asignar-personal'),
+    
+    formSeguimiento: document.getElementById('form-adm-seguimiento'),
+    segDiagnostico: document.getElementById('adm-seg-diagnostico'),
+    segTrabajo: document.getElementById('adm-seg-trabajo'),
+    segHoras: document.getElementById('adm-seg-horas'),
+    segEstado: document.getElementById('adm-seg-estado'),
+    
+    filterEstado: document.getElementById('adm-filter-estado'),
+    filterPrioridad: document.getElementById('adm-filter-prioridad'),
+    sortOrden: document.getElementById('adm-sort-orden'),
     
     // CRUD Técnicos Form
     formTecnico: document.getElementById('form-adm-tecnico'),
@@ -1667,13 +1675,20 @@ async function loadAdminComponentesPanel() {
         AdmDOM.tbodyComponentes.innerHTML = '';
         componentes.forEach(c => {
             const row = document.createElement('tr');
+            let assignBtnHtml = '';
+            if (c.estado_fisico === 'almacenado') {
+                assignBtnHtml = `<button class="btn btn-primary btn-sm btn-adm-comp-assign" data-id="${c.componente_id}" data-desc="${c.tipo} - ${c.especificaciones_tecnicas}">Asignar a PC</button>`;
+            }
             row.innerHTML = `
                 <td>#${c.componente_id}</td>
                 <td><strong>${c.tipo}</strong></td>
                 <td>${c.especificaciones_tecnicas}</td>
                 <td><span class="badge badge-${c.estado_fisico}">${c.estado_fisico}</span></td>
                 <td>
-                    <button class="btn btn-secondary btn-sm btn-adm-comp-edit" data-id="${c.componente_id}" data-eq="${c.id_equipo || ''}" data-amb="${c.id_ambiente || ''}" data-est="${c.estado_fisico}" data-tip="${c.tipo}" data-marca="${c.especificaciones_tecnicas.split(' ')[0]}" data-model="${c.especificaciones_tecnicas.split(' ').slice(1).join(' ')}">Editar</button>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn btn-secondary btn-sm btn-adm-comp-edit" data-id="${c.componente_id}" data-eq="${c.id_equipo || ''}" data-amb="${c.id_ambiente || ''}" data-est="${c.estado_fisico}" data-tip="${c.tipo}" data-marca="${c.especificaciones_tecnicas.split(' ')[0]}" data-model="${c.especificaciones_tecnicas.split(' ').slice(1).join(' ')}">Editar</button>
+                        ${assignBtnHtml}
+                    </div>
                 </td>
             `;
             AdmDOM.tbodyComponentes.appendChild(row);
@@ -1708,6 +1723,12 @@ async function loadAdminComponentesPanel() {
                 AdmDOM.btnCancelCompEdit.classList.remove('hidden');
                 AdmDOM.compFormTitle.textContent = 'Editar Componente Físico';
                 AdmDOM.formComponente.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        AdmDOM.tbodyComponentes.querySelectorAll('.btn-adm-comp-assign').forEach(btn => {
+            btn.addEventListener('click', () => {
+                abrirModalAsignacion(btn.getAttribute('data-id'), btn.getAttribute('data-desc'));
             });
         });
 
@@ -1759,6 +1780,7 @@ async function loadAdminAuditorias() {
 // Reset y desactivar pestañas de administrador
 function deactivateAdminTabs() {
     AdmDOM.btnNavInicio.classList.remove('active');
+    AdmDOM.btnNavIncidencias.classList.remove('active');
     AdmDOM.btnNavTecnicos.classList.remove('active');
     AdmDOM.btnNavUsuarios.classList.remove('active');
     AdmDOM.btnNavAreas.classList.remove('active');
@@ -1766,11 +1788,14 @@ function deactivateAdminTabs() {
     AdmDOM.btnNavAuditoria.classList.remove('active');
     
     AdmDOM.panelInicio.classList.add('hidden');
+    AdmDOM.panelIncidencias.classList.add('hidden');
     AdmDOM.panelTecnicos.classList.add('hidden');
     AdmDOM.panelUsuarios.classList.add('hidden');
     AdmDOM.panelAreas.classList.add('hidden');
     AdmDOM.panelComponentes.classList.add('hidden');
     AdmDOM.panelAuditoria.classList.add('hidden');
+    
+    AdmDOM.cardAtencionDetalle.classList.add('hidden');
 }
 
 // Eventos Navegación Administrador
@@ -1780,6 +1805,13 @@ AdmDOM.btnNavInicio.addEventListener('click', () => {
     AdmDOM.panelInicio.classList.remove('hidden');
     loadAdminKPIs();
     loadAdminMoniteroInicio();
+});
+
+AdmDOM.btnNavIncidencias.addEventListener('click', () => {
+    deactivateAdminTabs();
+    AdmDOM.btnNavIncidencias.classList.add('active');
+    AdmDOM.panelIncidencias.classList.remove('hidden');
+    fetchAndRenderIncidencias('admin');
 });
 
 AdmDOM.btnNavTecnicos.addEventListener('click', () => {
@@ -2157,7 +2189,335 @@ DOM.btnLogout.addEventListener('click', () => {
     AdmDOM.formArea.reset();
     AdmDOM.formComponente.reset();
     
+    // Resetear nuevos formularios
+    if (AdmDOM.formAsignar) AdmDOM.formAsignar.reset();
+    if (AdmDOM.formSeguimiento) AdmDOM.formSeguimiento.reset();
+
     // Retornar al inicio
     DOM.viewRoleSelection.classList.remove('hidden');
     showToast('Sesión simulada finalizada.');
 });
+
+// =============================================================================
+// 5. NUEVA LOGICA DE FILTROS, ORDENAMIENTO Y ASIGNACION DE COMPONENTES
+// =============================================================================
+let currentIncidencias = [];
+
+async function fetchAndRenderIncidencias(role) {
+    try {
+        const res = await fetch(`/api/soporte/incidencias/${currentSession.userId}`);
+        currentIncidencias = await res.json();
+        renderIncidenciasTable(role);
+    } catch (err) {
+        showToast('Error al cargar incidencias.', 'danger');
+    }
+}
+
+function renderIncidenciasTable(role) {
+    const tbody = role === 'admin' ? AdmDOM.tbodyIncidencias : TecDOM.tbodyIncidencias;
+    const filterEstado = role === 'admin' ? AdmDOM.filterEstado.value : TecDOM.filterEstado.value;
+    const filterPrioridad = role === 'admin' ? AdmDOM.filterPrioridad.value : TecDOM.filterPrioridad.value;
+    const sortOrden = role === 'admin' ? AdmDOM.sortOrden.value : TecDOM.sortOrden.value;
+
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    // 1. Filtrar
+    let filtered = currentIncidencias.filter(inc => {
+        const matchEstado = filterEstado === 'todos' || inc.estado === filterEstado;
+        const matchPrioridad = filterPrioridad === 'todas' || inc.prioridad === filterPrioridad;
+        return matchEstado && matchPrioridad;
+    });
+
+    // 2. Ordenar
+    filtered.sort((a, b) => {
+        if (sortOrden === 'recientes') {
+            return new Date(b.fecha) - new Date(a.fecha);
+        } else if (sortOrden === 'antiguas') {
+            return new Date(a.fecha) - new Date(b.fecha);
+        } else if (sortOrden === 'prioridad') {
+            const priorityWeight = { alta: 3, media: 2, baja: 1 };
+            const weightA = priorityWeight[a.prioridad] || 0;
+            const weightB = priorityWeight[b.prioridad] || 0;
+            if (weightA !== weightB) {
+                return weightB - weightA;
+            }
+            return new Date(b.fecha) - new Date(a.fecha);
+        }
+        return 0;
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No se encontraron incidencias con los filtros aplicados.</td></tr>`;
+        return;
+    }
+
+    filtered.forEach(inc => {
+        const row = document.createElement('tr');
+        const btnClass = role === 'admin' ? 'btn-adm-atender' : 'btn-tec-atender';
+        row.innerHTML = `
+            <td>#${inc.id_incidencia}</td>
+            <td>${formatDate(inc.fecha)}</td>
+            <td>${inc.equipo_codigo || 'N/A'}</td>
+            <td><span class="priority-badge priority-${inc.prioridad}">${inc.prioridad}</span></td>
+            <td>${inc.tecnico_asignado || '<em style="color: var(--color-warning);">No Asignado</em>'}</td>
+            <td>${inc.descripcion || ''}</td>
+            <td><span class="badge badge-${inc.estado}">${inc.estado}</span></td>
+            <td><button class="btn btn-primary btn-sm ${btnClass}" data-id="${inc.id_incidencia}">Atender / Asignar</button></td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    tbody.querySelectorAll(`.${role === 'admin' ? 'btn-adm-atender' : 'btn-tec-atender'}`).forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (role === 'admin') {
+                showAtencionIncidenciaAdmin(btn.getAttribute('data-id'));
+            } else {
+                showAtencionIncidenciaTecnico(btn.getAttribute('data-id'));
+            }
+        });
+    });
+}
+
+// Detalle atencion Admin
+async function showAtencionIncidenciaAdmin(id) {
+    AdmDOM.detailId.textContent = id;
+    try {
+        const res = await fetch('/api/roles/tecnicos');
+        const tecnicos = await res.json();
+        AdmDOM.asignarPersonal.innerHTML = '<option value="">-- Seleccionar --</option>';
+        tecnicos.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id_tecnico;
+            opt.textContent = `${t.nombres} ${t.apellidos} (${t.rango.toUpperCase()})`;
+            AdmDOM.asignarPersonal.appendChild(opt);
+        });
+    } catch (err) {
+        showToast('Error al cargar personal de soporte.', 'danger');
+    }
+    AdmDOM.cardAtencionDetalle.classList.remove('hidden');
+    AdmDOM.cardAtencionDetalle.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Boton cerrar detalle Admin
+if (AdmDOM.btnCloseDetail) {
+    AdmDOM.btnCloseDetail.addEventListener('click', () => {
+        AdmDOM.cardAtencionDetalle.classList.add('hidden');
+    });
+}
+
+// Formulario de asignación Admin
+if (AdmDOM.formAsignar) {
+    AdmDOM.formAsignar.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const idIncidencia = AdmDOM.detailId.textContent;
+        const idTecnicoAsignado = AdmDOM.asignarPersonal.value;
+        try {
+            const res = await fetch('/api/soporte/incidencia/asignar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id_incidencia: idIncidencia,
+                    id_tecnico_asignador: currentSession.userId,
+                    id_tecnico_asignado: idTecnicoAsignado
+                })
+            });
+            const result = await res.json();
+            if (res.ok) {
+                showToast(result.message, 'success');
+                AdmDOM.cardAtencionDetalle.classList.add('hidden');
+                fetchAndRenderIncidencias('admin');
+            } else {
+                showToast(`Error: ${result.error}`, 'danger');
+            }
+        } catch (err) {
+            showToast('Error al asignar personal.', 'danger');
+        }
+    });
+}
+
+// Formulario de seguimiento Admin
+if (AdmDOM.formSeguimiento) {
+    AdmDOM.formSeguimiento.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const idIncidencia = AdmDOM.detailId.textContent;
+        try {
+            const res = await fetch('/api/soporte/incidencia/seguimiento/tec', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id_incidencia: idIncidencia,
+                    id_tecnico: currentSession.userId,
+                    diagnostico: AdmDOM.segDiagnostico.value,
+                    trabajo_realizado: AdmDOM.segTrabajo.value,
+                    horas_invertidas: parseFloat(AdmDOM.segHoras.value),
+                    nuevo_estado: AdmDOM.segEstado.value
+                })
+            });
+            const result = await res.json();
+            if (res.ok) {
+                showToast('Seguimiento registrado con éxito.', 'success');
+                AdmDOM.formSeguimiento.reset();
+                AdmDOM.cardAtencionDetalle.classList.add('hidden');
+                fetchAndRenderIncidencias('admin');
+            } else {
+                showToast(`Error: ${result.error}`, 'danger');
+            }
+        } catch (err) {
+            showToast('Error al registrar seguimiento.', 'danger');
+        }
+    });
+}
+
+// Listeners de cambio de filtro para recargar en tiempo real
+if (TecDOM.filterEstado) {
+    TecDOM.filterEstado.addEventListener('change', () => renderIncidenciasTable('tecnico'));
+    TecDOM.filterPrioridad.addEventListener('change', () => renderIncidenciasTable('tecnico'));
+    TecDOM.sortOrden.addEventListener('change', () => renderIncidenciasTable('tecnico'));
+}
+if (AdmDOM.filterEstado) {
+    AdmDOM.filterEstado.addEventListener('change', () => renderIncidenciasTable('admin'));
+    AdmDOM.filterPrioridad.addEventListener('change', () => renderIncidenciasTable('admin'));
+    AdmDOM.sortOrden.addEventListener('change', () => renderIncidenciasTable('admin'));
+}
+
+// MODAL DE ASIGNACIÓN DE COMPONENTES
+const CompAsignarDOM = {
+    modal: document.getElementById('modal-asignar-componente'),
+    btnClose: document.getElementById('btn-close-asignar-modal'),
+    form: document.getElementById('form-asignar-componente'),
+    compId: document.getElementById('asignar-comp-id'),
+    compInfo: document.getElementById('asignar-comp-info'),
+    pcSelect: document.getElementById('asignar-pc-select')
+};
+
+async function abrirModalAsignacion(compId, compDesc) {
+    CompAsignarDOM.compId.value = compId;
+    CompAsignarDOM.compInfo.textContent = `[ID #${compId}] ${compDesc}`;
+    
+    try {
+        const res = await fetch('/api/equipos');
+        const equipos = await res.json();
+        
+        // Filtrar por pc_escritorio
+        const pcs = equipos.filter(eq => eq.tipo === 'pc_escritorio');
+        
+        CompAsignarDOM.pcSelect.innerHTML = '';
+        if (pcs.length === 0) {
+            CompAsignarDOM.pcSelect.innerHTML = '<option value="">-- No hay PCs de Escritorio disponibles --</option>';
+        } else {
+            pcs.forEach(pc => {
+                const opt = document.createElement('option');
+                opt.value = pc.id_equipo;
+                opt.textContent = `${pc.codigo_inventario} - ${pc.marca} (${pc.estado})`;
+                CompAsignarDOM.pcSelect.appendChild(opt);
+            });
+        }
+    } catch (err) {
+        showToast('Error al cargar equipos de tipo PC Escritorio.', 'danger');
+    }
+    
+    CompAsignarDOM.modal.classList.remove('hidden');
+}
+
+if (CompAsignarDOM.btnClose) {
+    CompAsignarDOM.btnClose.addEventListener('click', () => {
+        CompAsignarDOM.modal.classList.add('hidden');
+    });
+}
+
+if (CompAsignarDOM.modal) {
+    CompAsignarDOM.modal.addEventListener('click', (e) => {
+        if (e.target === CompAsignarDOM.modal) {
+            CompAsignarDOM.modal.classList.add('hidden');
+        }
+    });
+}
+
+if (CompAsignarDOM.form) {
+    CompAsignarDOM.form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const compId = CompAsignarDOM.compId.value;
+        const pcId = CompAsignarDOM.pcSelect.value;
+        
+        if (!pcId) {
+            showToast('Por favor seleccione una PC de Escritorio.', 'warning');
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/soporte/componentes/asignar-pc', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id_tecnico_sesion: currentSession.userId,
+                    id_componente: compId,
+                    id_equipo: pcId
+                })
+            });
+            const result = await res.json();
+            if (res.ok) {
+                showToast(result.message, 'success');
+                CompAsignarDOM.modal.classList.add('hidden');
+                
+                // Recargar el inventario correspondiente al panel activo
+                if (currentSession.role === 'administrador_sistema') {
+                    loadAdminComponentesPanel();
+                } else if (currentSession.role === 'tecnico') {
+                    loadComponentesTecnico();
+                }
+            } else {
+                showToast(`Error: ${result.error}`, 'danger');
+            }
+        } catch (err) {
+            showToast('Error al asignar componente.', 'danger');
+        }
+    });
+}
+
+// Lógica de auto-asignación ("Asignarme a mí mismo")
+async function asignarIncidenciaSelf(idIncidencia, role) {
+    try {
+        const res = await fetch('/api/soporte/incidencia/asignar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id_incidencia: idIncidencia,
+                id_tecnico_asignador: currentSession.userId,
+                id_tecnico_asignado: currentSession.userId
+            })
+        });
+        const result = await res.json();
+        if (res.ok) {
+            showToast('Te has asignado la incidencia con éxito.', 'success');
+            if (role === 'admin') {
+                AdmDOM.cardAtencionDetalle.classList.add('hidden');
+                fetchAndRenderIncidencias('admin');
+            } else {
+                TecDOM.cardAtencionDetalle.classList.add('hidden');
+                fetchAndRenderIncidencias('tecnico');
+            }
+        } else {
+            showToast(`Error: ${result.error}`, 'danger');
+        }
+    } catch (err) {
+        showToast('Error al asignarte la incidencia.', 'danger');
+    }
+}
+
+const btnTecAsignarSelf = document.getElementById('btn-tec-asignar-self');
+if (btnTecAsignarSelf) {
+    btnTecAsignarSelf.addEventListener('click', () => {
+        const idIncidencia = TecDOM.detailId.textContent;
+        asignarIncidenciaSelf(idIncidencia, 'tecnico');
+    });
+}
+
+const btnAdmAsignarSelf = document.getElementById('btn-adm-asignar-self');
+if (btnAdmAsignarSelf) {
+    btnAdmAsignarSelf.addEventListener('click', () => {
+        const idIncidencia = AdmDOM.detailId.textContent;
+        asignarIncidenciaSelf(idIncidencia, 'admin');
+    });
+}
+

@@ -297,6 +297,7 @@
                                     <th>Equipo</th>
                                     <th>Prioridad</th>
                                     <th>Reporta</th>
+                                    <th>Descripción</th>
                                     <th>Estado</th>
                                     <th>Acción</th>
                                 </tr>
@@ -450,14 +451,48 @@
                 <div class="card">
                     <h2>Bandeja de Incidencias Globales</h2>
                     <p class="subtitle">Atiende incidentes directamente o asígnalos a tu equipo de practicantes</p>
+
+                    <!-- Filtros de Incidencias Técnico -->
+                    <div class="filters-container" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                            <label for="tec-filter-estado" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Filtrar por Estado</label>
+                            <select id="tec-filter-estado" class="form-control">
+                                <option value="todos">Todos los Estados</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="en_proceso">En Proceso</option>
+                                <option value="resuelta">Resuelta</option>
+                                <option value="cerrada">Cerrada</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                            <label for="tec-filter-prioridad" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Filtrar por Prioridad</label>
+                            <select id="tec-filter-prioridad" class="form-control">
+                                <option value="todas">Todas las Prioridades</option>
+                                <option value="alta">Alta</option>
+                                <option value="media">Media</option>
+                                <option value="baja">Baja</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                            <label for="tec-sort-orden" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Orden de Aparición</label>
+                            <select id="tec-sort-orden" class="form-control">
+                                <option value="recientes">Más recientes primero</option>
+                                <option value="antiguas">Más antiguas primero</option>
+                                <option value="prioridad">Por Prioridad (Alta a Baja)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="table-container">
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Fecha Reporte</th>
                                     <th>Equipo</th>
                                     <th>Prioridad</th>
                                     <th>Responsable</th>
+                                    <th>Descripción</th>
                                     <th>Estado</th>
                                     <th>Acción</th>
                                 </tr>
@@ -488,6 +523,7 @@
                                     </select>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block">Asignar en BD</button>
+                                <button type="button" id="btn-tec-asignar-self" class="btn btn-secondary btn-block mt-2" style="background-color: var(--color-secondary); color: var(--text-main); margin-top: 10px; width: 100%; padding: 8px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600;">Asignarme a mí mismo</button>
                             </form>
                         </div>
 
@@ -959,6 +995,7 @@
                                     <th>Detalles Técnicos</th>
                                     <th>Estado Físico</th>
                                     <th>Ubicación / Equipo</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-tec-componentes">
@@ -996,6 +1033,7 @@
 
             <div class="action-bar">
                 <button id="btn-adm-nav-inicio" class="tab-btn active">Monitoreo General</button>
+                <button id="btn-adm-nav-incidencias" class="tab-btn">Gestionar Incidencias</button>
                 <button id="btn-adm-nav-tecnicos" class="tab-btn">Gestionar Técnicos</button>
                 <button id="btn-adm-nav-usuarios" class="tab-btn">Gestionar Usuarios</button>
                 <button id="btn-adm-nav-areas" class="tab-btn">Gestionar Áreas</button>
@@ -1045,6 +1083,119 @@
                                     <!-- Cargado dinámicamente -->
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel: Gestionar Incidencias (Admin) -->
+            <section id="panel-adm-incidencias" class="dashboard-panel hidden">
+                <div class="card">
+                    <h2>Bandeja de Incidencias Globales</h2>
+                    <p class="subtitle">Monitorea, asigna y registra avances de incidencias en toda la facultad</p>
+
+                    <!-- Filtros de Incidencias Admin -->
+                    <div class="filters-container" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                            <label for="adm-filter-estado" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Filtrar por Estado</label>
+                            <select id="adm-filter-estado" class="form-control">
+                                <option value="todos">Todos los Estados</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="en_proceso">En Proceso</option>
+                                <option value="resuelta">Resuelta</option>
+                                <option value="cerrada">Cerrada</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                            <label for="adm-filter-prioridad" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Filtrar por Prioridad</label>
+                            <select id="adm-filter-prioridad" class="form-control">
+                                <option value="todas">Todas las Prioridades</option>
+                                <option value="alta">Alta</option>
+                                <option value="media">Media</option>
+                                <option value="baja">Baja</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                            <label for="adm-sort-orden" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Orden de Aparición</label>
+                            <select id="adm-sort-orden" class="form-control">
+                                <option value="recientes">Más recientes primero</option>
+                                <option value="antiguas">Más antiguas primero</option>
+                                <option value="prioridad">Por Prioridad (Alta a Baja)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha Reporte</th>
+                                    <th>Equipo</th>
+                                    <th>Prioridad</th>
+                                    <th>Responsable</th>
+                                    <th>Descripción</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-adm-incidencias">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modificar Asignación o Resolver (Admin) -->
+                <div id="card-adm-atencion-detalle" class="card mt-4 hidden">
+                    <div class="card-header-split">
+                        <h3>Acciones en Incidencia #<span id="adm-detail-id"></span></h3>
+                        <button id="btn-close-adm-detail" class="btn-close-x">✕</button>
+                    </div>
+                    
+                    <div class="grid-2-col">
+                        <!-- Asignar Personal -->
+                        <div>
+                            <h4>Asignar Responsable</h4>
+                            <form id="form-adm-asignar" class="mt-2">
+                                <div class="form-group">
+                                    <label for="adm-asignar-personal">Seleccionar Técnico / Practicante</label>
+                                    <select id="adm-asignar-personal" class="form-control" required>
+                                        <!-- Cargados dinámicamente -->
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Asignar en BD</button>
+                                <button type="button" id="btn-adm-asignar-self" class="btn btn-secondary btn-block mt-2" style="background-color: var(--color-secondary); color: var(--text-main); margin-top: 10px; width: 100%; padding: 8px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600;">Asignarme a mí mismo</button>
+                            </form>
+                        </div>
+
+                        <!-- Registrar Seguimiento Directo -->
+                        <div>
+                            <h4>Registrar Avance / Trabajo</h4>
+                            <form id="form-adm-seguimiento" class="mt-2">
+                                <div class="form-group">
+                                    <label for="adm-seg-diagnostico">Diagnóstico</label>
+                                    <input type="text" id="adm-seg-diagnostico" class="form-control" placeholder="Diagnóstico..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="adm-seg-trabajo">Trabajo Realizado</label>
+                                    <input type="text" id="adm-seg-trabajo" class="form-control" placeholder="Descripción de tareas..." required>
+                                </div>
+                                <div class="grid-2-col">
+                                    <div class="form-group">
+                                        <label for="adm-seg-horas">Horas</label>
+                                        <input type="number" step="0.25" id="adm-seg-horas" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="adm-seg-estado">Nuevo Estado</label>
+                                        <select id="adm-seg-estado" class="form-control" required>
+                                            <option value="en_proceso" selected>En Proceso</option>
+                                            <option value="resuelta">Resuelta</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-block">Registrar Seguimiento</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -1421,6 +1572,30 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- MODAL DE ASIGNACIÓN DE COMPONENTE A PC -->
+    <div id="modal-asignar-componente" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Asignar Componente a PC</h3>
+                <button id="btn-close-asignar-modal" class="btn-close-x" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;">✕</button>
+            </div>
+            <form id="form-asignar-componente">
+                <input type="hidden" id="asignar-comp-id">
+                <div class="form-group mb-3" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; margin-bottom: 5px; display: block;">Componente Seleccionado</label>
+                    <div id="asignar-comp-info" style="padding: 10px; background: var(--bg-input); border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.9rem; color: var(--text-main);"></div>
+                </div>
+                <div class="form-group mb-4" style="margin-bottom: 20px;">
+                    <label for="asignar-pc-select" style="font-weight: 600; margin-bottom: 5px; display: block;">Seleccionar PC de Escritorio Destino</label>
+                    <select id="asignar-pc-select" class="form-control" required style="width: 100%; padding: 8px; border-radius: 6px; background-color: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main);">
+                        <!-- Se cargará con equipos tipo pc_escritorio -->
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" style="width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 650;">Confirmar Asignación en BD</button>
+            </form>
+        </div>
     </div>
 
     <!-- NOTIFICACIONES TOAST -->

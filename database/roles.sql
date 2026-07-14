@@ -90,6 +90,7 @@ GRANT EXECUTE ON PROCEDURE `soportefisi`.`sp_editar_software_instalado` TO 'rol_
 GRANT EXECUTE ON PROCEDURE `soportefisi`.`sp_tecnico_registrar_incidencia` TO 'rol_tecnico';
 GRANT EXECUTE ON PROCEDURE `soportefisi`.`sp_registrar_seguimiento_tecnico` TO 'rol_tecnico';
 GRANT EXECUTE ON PROCEDURE `soportefisi`.`sp_asignar_personal_incidencia` TO 'rol_tecnico';
+GRANT EXECUTE ON PROCEDURE `soportefisi`.`sp_asignar_componente_pc_escritorio` TO 'rol_tecnico';
 GRANT EXECUTE ON PROCEDURE `soportefisi`.`sp_ver_solicitudes` TO 'rol_tecnico';
 GRANT EXECUTE ON PROCEDURE `soportefisi`.`sp_ver_detalle_solicitud` TO 'rol_tecnico';
 
