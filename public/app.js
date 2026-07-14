@@ -464,6 +464,9 @@ async function showAtencionIncidenciaPracticante(id, equipo, desc, estado) {
     }
     
     PracDOM.cardAtencionDetalle.classList.remove('hidden');
+    setTimeout(() => {
+        PracDOM.cardAtencionDetalle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
 }
 
 // Cargar todos los componentes (Practicante)
@@ -610,6 +613,8 @@ const TecDOM = {
     
     filterEstado: document.getElementById('tec-filter-estado'),
     filterPrioridad: document.getElementById('tec-filter-prioridad'),
+    filterUsuario: document.getElementById('tec-filter-usuario'),
+    filterAsignacion: document.getElementById('tec-filter-asignacion'),
     sortOrden: document.getElementById('tec-sort-orden'),
     tbodySolicitudes: document.getElementById('tbody-tec-solicitudes'),
     tbodyComponentes: document.getElementById('tbody-tec-componentes'),
@@ -708,6 +713,9 @@ async function showAtencionIncidenciaTecnico(id) {
     }
     
     TecDOM.cardAtencionDetalle.classList.remove('hidden');
+    setTimeout(() => {
+        TecDOM.cardAtencionDetalle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
 }
 
 // Cargar datos de iniciación para el registro de equipos (ambiente, usuarios, equipos)
@@ -1280,6 +1288,8 @@ const AdmDOM = {
     
     filterEstado: document.getElementById('adm-filter-estado'),
     filterPrioridad: document.getElementById('adm-filter-prioridad'),
+    filterUsuario: document.getElementById('adm-filter-usuario'),
+    filterAsignacion: document.getElementById('adm-filter-asignacion'),
     sortOrden: document.getElementById('adm-sort-orden'),
     
     // CRUD Técnicos Form
@@ -2217,6 +2227,8 @@ function renderIncidenciasTable(role) {
     const tbody = role === 'admin' ? AdmDOM.tbodyIncidencias : TecDOM.tbodyIncidencias;
     const filterEstado = role === 'admin' ? AdmDOM.filterEstado.value : TecDOM.filterEstado.value;
     const filterPrioridad = role === 'admin' ? AdmDOM.filterPrioridad.value : TecDOM.filterPrioridad.value;
+    const filterUsuario = role === 'admin' ? AdmDOM.filterUsuario.value : TecDOM.filterUsuario.value;
+    const filterAsignacion = role === 'admin' ? AdmDOM.filterAsignacion.value : TecDOM.filterAsignacion.value;
     const sortOrden = role === 'admin' ? AdmDOM.sortOrden.value : TecDOM.sortOrden.value;
 
     if (!tbody) return;
@@ -2226,7 +2238,13 @@ function renderIncidenciasTable(role) {
     let filtered = currentIncidencias.filter(inc => {
         const matchEstado = filterEstado === 'todos' || inc.estado === filterEstado;
         const matchPrioridad = filterPrioridad === 'todas' || inc.prioridad === filterPrioridad;
-        return matchEstado && matchPrioridad;
+        
+        const reportaNombre = inc.usuario_reporta_nombre || '';
+        const matchUsuario = !filterUsuario || reportaNombre.toLowerCase().includes(filterUsuario.toLowerCase().trim());
+        
+        const matchAsignacion = filterAsignacion === 'todas' || (inc.tecnico_asignado && inc.tecnico_asignado.trim().toLowerCase() === currentSession.userName.trim().toLowerCase());
+        
+        return matchEstado && matchPrioridad && matchUsuario && matchAsignacion;
     });
 
     // 2. Ordenar
@@ -2248,7 +2266,7 @@ function renderIncidenciasTable(role) {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No se encontraron incidencias con los filtros aplicados.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">No se encontraron incidencias con los filtros aplicados.</td></tr>`;
         return;
     }
 
@@ -2260,6 +2278,7 @@ function renderIncidenciasTable(role) {
             <td>${formatDate(inc.fecha)}</td>
             <td>${inc.equipo_codigo || 'N/A'}</td>
             <td><span class="priority-badge priority-${inc.prioridad}">${inc.prioridad}</span></td>
+            <td>${inc.usuario_reporta_nombre || 'N/A'}</td>
             <td>${inc.tecnico_asignado || '<em style="color: var(--color-warning);">No Asignado</em>'}</td>
             <td>${inc.descripcion || ''}</td>
             <td><span class="badge badge-${inc.estado}">${inc.estado}</span></td>
@@ -2296,7 +2315,9 @@ async function showAtencionIncidenciaAdmin(id) {
         showToast('Error al cargar personal de soporte.', 'danger');
     }
     AdmDOM.cardAtencionDetalle.classList.remove('hidden');
-    AdmDOM.cardAtencionDetalle.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+        AdmDOM.cardAtencionDetalle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
 }
 
 // Boton cerrar detalle Admin
@@ -2373,11 +2394,15 @@ if (AdmDOM.formSeguimiento) {
 if (TecDOM.filterEstado) {
     TecDOM.filterEstado.addEventListener('change', () => renderIncidenciasTable('tecnico'));
     TecDOM.filterPrioridad.addEventListener('change', () => renderIncidenciasTable('tecnico'));
+    TecDOM.filterUsuario.addEventListener('input', () => renderIncidenciasTable('tecnico'));
+    TecDOM.filterAsignacion.addEventListener('change', () => renderIncidenciasTable('tecnico'));
     TecDOM.sortOrden.addEventListener('change', () => renderIncidenciasTable('tecnico'));
 }
 if (AdmDOM.filterEstado) {
     AdmDOM.filterEstado.addEventListener('change', () => renderIncidenciasTable('admin'));
     AdmDOM.filterPrioridad.addEventListener('change', () => renderIncidenciasTable('admin'));
+    AdmDOM.filterUsuario.addEventListener('input', () => renderIncidenciasTable('admin'));
+    AdmDOM.filterAsignacion.addEventListener('change', () => renderIncidenciasTable('admin'));
     AdmDOM.sortOrden.addEventListener('change', () => renderIncidenciasTable('admin'));
 }
 

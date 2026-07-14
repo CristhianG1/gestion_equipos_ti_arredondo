@@ -453,7 +453,11 @@
                     <p class="subtitle">Atiende incidentes directamente o asígnalos a tu equipo de practicantes</p>
 
                     <!-- Filtros de Incidencias Técnico -->
-                    <div class="filters-container" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <div class="filters-container" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                        <div class="form-group" style="flex: 1.5; min-width: 180px; margin-bottom: 0;">
+                            <label for="tec-filter-usuario" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Buscar por Usuario Reporta</label>
+                            <input type="text" id="tec-filter-usuario" class="form-control" placeholder="Nombre de usuario...">
+                        </div>
                         <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
                             <label for="tec-filter-estado" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Filtrar por Estado</label>
                             <select id="tec-filter-estado" class="form-control">
@@ -481,6 +485,13 @@
                                 <option value="prioridad">Por Prioridad (Alta a Baja)</option>
                             </select>
                         </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                            <label for="tec-filter-asignacion" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Filtrar por Asignación</label>
+                            <select id="tec-filter-asignacion" class="form-control">
+                                <option value="todas">Todas las incidencias</option>
+                                <option value="mis_incidencias">Asignadas a mí</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="table-container">
@@ -491,6 +502,7 @@
                                     <th>Fecha Reporte</th>
                                     <th>Equipo</th>
                                     <th>Prioridad</th>
+                                    <th>Reporta</th>
                                     <th>Responsable</th>
                                     <th>Descripción</th>
                                     <th>Estado</th>
@@ -1095,7 +1107,11 @@
                     <p class="subtitle">Monitorea, asigna y registra avances de incidencias en toda la facultad</p>
 
                     <!-- Filtros de Incidencias Admin -->
-                    <div class="filters-container" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <div class="filters-container" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                        <div class="form-group" style="flex: 1.5; min-width: 180px; margin-bottom: 0;">
+                            <label for="adm-filter-usuario" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Buscar por Usuario Reporta</label>
+                            <input type="text" id="adm-filter-usuario" class="form-control" placeholder="Nombre de usuario...">
+                        </div>
                         <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
                             <label for="adm-filter-estado" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Filtrar por Estado</label>
                             <select id="adm-filter-estado" class="form-control">
@@ -1123,6 +1139,13 @@
                                 <option value="prioridad">Por Prioridad (Alta a Baja)</option>
                             </select>
                         </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                            <label for="adm-filter-asignacion" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block;">Filtrar por Asignación</label>
+                            <select id="adm-filter-asignacion" class="form-control">
+                                <option value="todas">Todas las incidencias</option>
+                                <option value="mis_incidencias">Asignadas a mí</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="table-container">
@@ -1133,6 +1156,7 @@
                                     <th>Fecha Reporte</th>
                                     <th>Equipo</th>
                                     <th>Prioridad</th>
+                                    <th>Reporta</th>
                                     <th>Responsable</th>
                                     <th>Descripción</th>
                                     <th>Estado</th>

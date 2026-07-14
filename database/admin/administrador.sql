@@ -511,11 +511,11 @@ BEGIN
     SELECT 
         a.`id_auditoria_tecnico` AS `log_id`,
         CONCAT(t.`nombres`, ' ', t.`apellidos`) AS `tecnico_responsable`,
-        a.`tabla_afectada` AS `tabla`,
+        a.`tabla_afectada` AS `tabla_afectada`,
         a.`permiso_realizado` AS `operacion`,
         a.`valor_agregado` AS `valor_nuevo`,
         a.`valor_anterior` AS `valor_antiguo`,
-        a.`fecha_realizado` AS `fecha_hora`
+        a.`fecha_realizado` AS `fecha`
     FROM `auditoria_tecnico` a
     INNER JOIN `tecnico` t ON a.`id_tecnico` = t.`id_tecnico`
     ORDER BY a.`fecha_realizado` DESC;

@@ -464,12 +464,12 @@ app.post('/api/inventario/componentes/pc', async (req, res) => {
     try {
         await runWithSession(id_tecnico_sesion, async (connection) => {
             await connection.query(
-                'CALL sp_registrar_componentes_pc(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                'CALL sp_registrar_componentes_pc(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [
                     id_equipo, marca_procesador, modelo_procesador, marca_ram, capacidad_ram, tipo_ram,
                     marca_almacenamiento, modelo_almacenamiento, tipo_disco, capacidad_almacenamiento,
                     marca_placa, modelo_placa, socket_placa, tamano_placa, marca_fuente, modelo_fuente,
-                    potencia_fuente, certificacion_fuente || null, marca_grafica || null, modelo_gpu || null, vram_gpu || null, id_tecnico_sesion
+                    potencia_fuente, certificacion_fuente || null, marca_grafica || null, modelo_gpu || null, vram_gpu || null
                 ]
             );
         });
